@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MTA 98-366 — Network Fundamentals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── BASE & THEME ─────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  --bg-grad-1:#0d0f1a;
+  --bg-grad-2:#0f1630;
+  --bg-grad-3:#0a0d1f;
+  --surface:#131929;
+  --surface2:#1a2236;
+  --surface3:#202d45;
+  --border:#2a3a58;
+  --border2:#344968;
+  --text-1:#e8edf8;
+  --text-2:#8fa5c9;
+  --text-3:#5a7099;
+  --accent:#4f8eff;
+  --accent2:#7b5ea7;
+  --success-bg:#0d2618;
+  --success-border:#1e5c3a;
+  --success-text:#4ade80;
+  --danger-bg:#2a0d0d;
+  --danger-border:#5c1e1e;
+  --danger-text:#f87171;
+  --warning:#fbbf24;
+  --shadow:0 8px 32px rgba(0,0,0,.5);
+  --radius:14px;
+  --radius-sm:8px;
+  --font:'Space Grotesk',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+
+body.light {
+  --bg-grad-1:#e8eef8;
+  --bg-grad-2:#dde6f5;
+  --bg-grad-3:#eff3fc;
+  --surface:#ffffff;
+  --surface2:#f1f5fb;
+  --surface3:#e4ecf7;
+  --border:#c8d8ed;
+  --border2:#b0c8e8;
+  --text-1:#0f1e3a;
+  --text-2:#3a5480;
+  --text-3:#6a88b8;
+  --accent:#2563eb;
+  --accent2:#6d3bbf;
+  --success-bg:#f0fdf4;
+  --success-border:#86efac;
+  --success-text:#15803d;
+  --danger-bg:#fef2f2;
+  --danger-border:#fca5a5;
+  --danger-text:#b91c1c;
+  --warning:#b45309;
+  --shadow:0 4px 20px rgba(0,0,0,.12);
+}
+
+html,body{min-height:100vh;font-family:var(--font);color:var(--text-1);transition:background .3s,color .3s}
+
+body {
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(79,142,255,.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 80%, rgba(123,94,167,.12) 0%, transparent 60%),
+    linear-gradient(160deg, var(--bg-grad-1) 0%, var(--bg-grad-2) 50%, var(--bg-grad-3) 100%);
+  background-attachment:fixed;
+}
+
+/* ── LAYOUT ───────────────────────────────────────────────── */
+.wrapper{max-width:740px;margin:0 auto;padding:1.5rem 1rem 4rem;position:relative}
+
+/* ── TOP BAR ──────────────────────────────────────────────── */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.75rem}
+.brand{display:flex;flex-direction:column;gap:2px}
+.brand-title{font-size:18px;font-weight:700;letter-spacing:-.3px;background:linear-gradient(120deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.brand-sub{font-size:12px;color:var(--text-3);font-weight:500}
+.theme-toggle{width:42px;height:42px;border-radius:50%;border:1.5px solid var(--border);background:var(--surface2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all .2s;color:var(--text-2)}
+.theme-toggle:hover{border-color:var(--accent);color:var(--accent);transform:rotate(20deg)}
+
+/* ── CARD ─────────────────────────────────────────────────── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1rem;box-shadow:var(--shadow);transition:background .3s,border-color .3s}
+
+/* ── PROGRESS ─────────────────────────────────────────────── */
+.progress-wrap{margin-bottom:1.5rem}
+.progress-row{display:flex;justify-content:space-between;font-size:12px;color:var(--text-3);margin-bottom:.5rem;font-weight:500}
+.progress-bg{height:5px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.progress-fill{height:5px;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+
+/* ── QUESTION AREA ────────────────────────────────────────── */
+.batch-header{font-size:12px;font-weight:600;color:var(--accent);margin-bottom:1.25rem;padding-bottom:.75rem;border-bottom:1px solid var(--border);letter-spacing:.04em;text-transform:uppercase;display:flex;align-items:center;gap:.5rem}
+.batch-header::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0}
+.q-num{font-size:11px;color:var(--text-3);font-weight:500;margin-bottom:.3rem;font-family:var(--mono)}
+.q-tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 10px;border-radius:99px;margin-bottom:.75rem;border:1px solid;font-weight:600;letter-spacing:.02em}
+.q-text{font-size:15px;font-weight:600;line-height:1.65;margin-bottom:1.1rem;color:var(--text-1)}
+
+/* ── OPTIONS ──────────────────────────────────────────────── */
+.opt{display:flex;align-items:flex-start;gap:10px;width:100%;text-align:left;padding:11px 14px;margin-bottom:8px;background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13.5px;cursor:pointer;transition:all .18s;line-height:1.5;color:var(--text-1);font-family:var(--font)}
+.opt-letter{flex-shrink:0;width:22px;height:22px;border-radius:6px;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:var(--mono);color:var(--text-3);transition:all .18s}
+.opt:hover:not(:disabled){background:var(--surface3);border-color:var(--accent);transform:translateX(2px)}
+.opt:hover:not(:disabled) .opt-letter{border-color:var(--accent);color:var(--accent)}
+.opt.correct{background:var(--success-bg);border-color:var(--success-border);color:var(--success-text)}
+.opt.correct .opt-letter{background:var(--success-border);border-color:var(--success-border);color:#fff}
+.opt.wrong{background:var(--danger-bg);border-color:var(--danger-border);color:var(--danger-text)}
+.opt.wrong .opt-letter{background:var(--danger-border);border-color:var(--danger-border);color:#fff}
+.opt.reveal{background:var(--success-bg);border-color:var(--success-border);color:var(--success-text);opacity:.7}
+.opt.reveal .opt-letter{background:var(--success-border);border-color:var(--success-border);color:#fff}
+
+/* ── FEEDBACK ─────────────────────────────────────────────── */
+.feedback{font-size:13px;padding:14px 16px;border-radius:var(--radius-sm);margin-top:.85rem;line-height:1.65;border:1px solid}
+.feedback.correct{background:var(--success-bg);color:var(--success-text);border-color:var(--success-border)}
+.feedback.wrong{background:var(--danger-bg);color:var(--danger-text);border-color:var(--danger-border)}
+.feedback strong{display:block;font-size:14px;margin-bottom:.4rem}
+.wrong-reason{margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--danger-border);font-size:12.5px;opacity:.9}
+.wrong-reason b{display:block;margin-bottom:.2rem;font-size:12px;letter-spacing:.03em;text-transform:uppercase;opacity:.7}
+
+/* ── BUTTONS ──────────────────────────────────────────────── */
+.btn{padding:9px 20px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface2);font-size:14px;cursor:pointer;font-weight:600;color:var(--text-2);font-family:var(--font);transition:all .18s;white-space:nowrap}
+.btn:hover{background:var(--surface3);border-color:var(--accent);color:var(--text-1)}
+.btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;box-shadow:0 4px 16px rgba(79,142,255,.3)}
+.btn.primary:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 6px 20px rgba(79,142,255,.4)}
+.btn.danger-outline{border-color:var(--danger-border);color:var(--danger-text)}
+.btn.danger-outline:hover{background:var(--danger-bg)}
+
+/* ── BATCH NAV ────────────────────────────────────────────── */
+.batch-nav{display:flex;align-items:center;justify-content:space-between;margin-top:.75rem;gap:.6rem;flex-wrap:wrap}
+.answered-count{font-size:12px;color:var(--text-3);font-family:var(--mono);background:var(--surface2);border:1px solid var(--border);padding:4px 12px;border-radius:99px;white-space:nowrap}
+.btn.restart-set{border-color:#f87171;color:#f87171;background:rgba(248,113,113,.08)}
+.btn.restart-set:hover{background:rgba(248,113,113,.18);border-color:#fca5a5;color:#fca5a5}
+
+/* ── SCORE CARD ───────────────────────────────────────────── */
+.score-card{text-align:center;padding:2rem 0}
+.score-ring-wrap{position:relative;width:130px;height:130px;margin:0 auto 1.25rem}
+.score-ring-wrap svg{position:absolute;top:0;left:0;transform:rotate(-90deg)}
+.score-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-big{font-size:28px;font-weight:700;line-height:1;color:var(--text-1)}
+.score-of{font-size:12px;color:var(--text-3);font-weight:500;margin-top:2px;font-family:var(--mono)}
+.score-msg{font-size:16px;font-weight:600;color:var(--text-1);margin-bottom:1.5rem}
+
+/* ── SET SELECTOR (Home screen) ──────────────────────────────*/
+.sets-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin:1.25rem 0}
+.set-card{background:var(--surface2);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;cursor:pointer;transition:all .18s;text-align:left;font-family:var(--font)}
+.set-card:hover{border-color:var(--accent);background:var(--surface3);transform:translateY(-2px)}
+.set-card.done{border-color:var(--success-border);background:var(--success-bg)}
+.set-card.in-progress{border-color:var(--accent);background:var(--surface3)}
+.set-card .set-num{font-size:11px;font-family:var(--mono);color:var(--text-3);font-weight:600;letter-spacing:.04em;margin-bottom:3px}
+.set-card .set-title{font-size:13px;font-weight:600;color:var(--text-1);margin-bottom:5px}
+.set-card .set-score{font-size:12px;font-weight:700}
+.set-card.done .set-score{color:var(--success-text)}
+.set-card .set-qs{font-size:11px;color:var(--text-3)}
+.set-card.done .set-num{color:var(--success-text)}
+.set-card.in-progress .set-num{color:var(--accent)}
+
+/* ── TOPIC PILLS ──────────────────────────────────────────── */
+.topic-pills{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:1.5rem}
+.topic-pill{font-size:11px;padding:4px 12px;border-radius:99px;background:var(--surface2);color:var(--text-3);border:1px solid var(--border);font-weight:500}
+
+/* ── REVIEW ITEM ──────────────────────────────────────────── */
+.review-item{padding:1rem 0;border-bottom:1px solid var(--border)}
+.review-item:last-child{border-bottom:none}
+.review-meta{font-size:11px;color:var(--text-3);font-family:var(--mono);margin-bottom:.35rem}
+.review-q{font-size:13px;font-weight:600;color:var(--text-1);margin-bottom:.6rem;line-height:1.5}
+.review-answer{font-size:12.5px;padding:8px 12px;border-radius:6px;line-height:1.5;border:1px solid}
+.review-answer.ok{background:var(--success-bg);border-color:var(--success-border);color:var(--success-text)}
+.review-answer.bad{background:var(--danger-bg);border-color:var(--danger-border);color:var(--danger-text)}
+.review-exp{font-size:12px;color:var(--text-2);margin-top:.5rem;line-height:1.55;padding-left:.5rem;border-left:2px solid var(--border2)}
+
+/* ── FINAL RESULTS ────────────────────────────────────────── */
+.result-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text-2)}
+.result-row:last-child{border-bottom:none}
+.result-row .set-label{color:var(--text-2)}
+.result-row .set-pct{font-weight:700;font-family:var(--mono)}
+
+/* ── ANIMATIONS ───────────────────────────────────────────── */
+@keyframes fadeSlideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.card{animation:fadeSlideIn .25s ease}
+.opt{animation:fadeSlideIn .2s ease both}
+.opt:nth-child(1){animation-delay:.03s}
+.opt:nth-child(2){animation-delay:.07s}
+.opt:nth-child(3){animation-delay:.11s}
+.opt:nth-child(4){animation-delay:.15s}
+.opt:nth-child(5){animation-delay:.19s}
+
+/* ── SCROLLBAR ────────────────────────────────────────────── */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--surface)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-title">MTA 98-366</div>
+      <div class="brand-sub">Network Fundamentals · 200 Questions</div>
+    </div>
+    <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()" title="Toggle light/dark mode">🌙</button>
+  </div>
+  <div id="app"></div>
+</div>
+
+<script>
+const QUESTIONS = [
+// ── SET 1: Network Models & OSI ──────────────────────────────
+{n:1,t:"OSI Model",q:"What is an example of a Layer 3 device that connects multiple computers and networks?",opts:["Packet","Repeater","Switch","Router"],ans:3,exp:"A Router operates at Layer 3 (Network layer) and connects multiple networks, forwarding packets based on IP addresses."},
+{n:2,t:"Routing",q:"If a router cannot determine the next hop for a packet, the router will:",opts:["Forward the packet to the default route","Send the packet back to the source","Broadcast the packet","Store the packet in memory buffer"],ans:0,exp:"When a router has no specific route, it uses the default route (gateway of last resort) to forward the packet."},
+{n:3,t:"OSI Model",q:"What layer of the OSI model allows applications and user functions access to the network?",opts:["Document layer","Application layer","System layer","Data-link layer"],ans:1,exp:"The Application layer (Layer 7) is the topmost OSI layer — it provides network services directly to end-user applications."},
+{n:4,t:"Network Services",q:"Which service converts NetBIOS names to IP addresses?",opts:["DHCP","DNS","Web server","WINS"],ans:3,exp:"WINS (Windows Internet Name Service) resolves NetBIOS names to IP addresses on Windows networks."},
+{n:5,t:"Network Topologies",q:"A client wants a home office network that is cost-effective, easy to extend, and has workstations connected by a single cable. Which topology?",opts:["Star","Bus","Mesh","Ring"],ans:1,exp:"Bus topology uses a single shared cable to connect all devices — cost-effective and easy to extend for small networks."},
+{n:6,t:"Switches",q:"Which are TRUE about network switches? (Choose all correct)",opts:["Tracks MAC addresses per port and directs traffic to correct port only — TRUE","Tracks IP addresses per port — TRUE","Operates at Physical layer — FALSE","Operates at Data-Link layer — TRUE"],ans:3,exp:"Switches track MAC addresses (not IP) at each port, directing traffic only to the destination port. They operate at Layer 2 (Data-Link). Options A and D are both true — best comprehensive answer."},
+{n:7,t:"Cabling",q:"Which are TRUE about 10BaseT cabling? (Best answer)",opts:["Max 100 meters; operates at 10 Mbps","Max 10 meters; operates at 100 Mbps","Max 100 meters; operates at 100 Mbps","Max 10 meters; operates at 10 Mbps"],ans:0,exp:"10BaseT uses twisted pair cables up to 100 meters and operates at 10 Mbps. '10' = 10 Mbps, 'Base' = baseband, 'T' = twisted pair."},
+{n:8,t:"VLANs",q:"A customer wants to create a virtual LAN. Which component must they have?",opts:["Switch","Modem","Server","Router"],ans:0,exp:"VLANs are created on switches. A managed switch allows you to segment a network into multiple VLANs logically."},
+{n:9,t:"Commands",q:"You execute NBTSTAT -S from the command line. What is the purpose?",opts:["View names registered locally by NetBIOS applications","View current NetBIOS sessions and their status with IP address","Purge the name cache","View NetBIOS sessions table converting IPs to computer names"],ans:1,exp:"NBTSTAT -S lists current NetBIOS sessions and their status, displaying remote IP addresses."},
+{n:10,t:"Commands",q:"What does the ping -l command allow you to do?",opts:["Specify a Time To Live for outgoing packets","Specify the type of service","Specify the amount of data to include in the ping","Resolve addresses to host names"],ans:2,exp:"ping -l [size] specifies the size (amount of data) of the ICMP echo request packets sent."},
+// ── SET 2: Protocols & Addressing ───────────────────────────
+{n:11,t:"Cabling",q:"You need to connect two home computers without unnecessary hardware. What should you use?",opts:["Hub and UTP crossover cable with RJ-45","Hub and UTP crossover cable with RJ-11","UTP crossover cable with RJ-45 only","UTP crossover cable with RJ-11 only"],ans:2,exp:"A crossover cable directly connects two computers (NIC to NIC) without needing a hub or switch. RJ-45 is the correct Ethernet connector."},
+{n:12,t:"WAN Technologies",q:"Which is TRUE about T3 internet connections?",opts:["Minimum 64 Mbps","Minimum 56 Kbps","Minimum 10 Mbps","Minimum 128 Mbps"],ans:2,exp:"T3 connections carry approximately 44.736 Mbps. 10 Mbps is the closest correct minimum referenced here. T3 = 28 T1 lines bundled."},
+{n:13,t:"WAN Technologies",q:"Which is TRUE about ISDN connections?",opts:["Operates at minimum 128 Kbps","Maximum 128 Mbps","Maximum 128 Kbps","Minimum 128 Mbps"],ans:2,exp:"Basic Rate ISDN (BRI) provides 2B+D = 128 Kbps maximum. Primary Rate ISDN can be higher, but standard ISDN max is 128 Kbps."},
+{n:14,t:"IP Addressing",q:"Which of the following is a public IP address?",opts:["10.0.0.1","197.16.0.1","192.168.0.1","172.16.0.1"],ans:1,exp:"197.x.x.x is a public address. 10.x.x.x, 172.16-31.x.x, and 192.168.x.x are all private RFC 1918 address ranges."},
+{n:15,t:"IP Addressing",q:"Which of these addresses is a multicast address?",opts:["127.0.0.1","169.254.0.1","192.168.0.1","224.0.0.1"],ans:3,exp:"Multicast addresses range from 224.0.0.0 to 239.255.255.255 (Class D). 127.0.0.1 = loopback; 169.254.x.x = APIPA; 192.168.x.x = private."},
+{n:16,t:"Protocols",q:"The protocol that maps IP addresses to a MAC (Media Access Control) address is:",opts:["IMAP","DHCP","RIP","UDP","ARP"],ans:4,exp:"ARP (Address Resolution Protocol) resolves IP addresses to MAC addresses on a local network."},
+{n:17,t:"Cabling",q:"Cable must support at least 300 Mbps for a home office. Least expensive option?",opts:["Cat 3","CAT5","Cat 5e","Cat 6"],ans:2,exp:"Cat 5e supports up to 1 Gbps and is cheaper than Cat 6. Cat 3 only supports 10 Mbps; CAT5 supports 100 Mbps."},
+{n:18,t:"Network Security",q:"One purpose of a perimeter network is to:",opts:["Make resources available to the intranet","Link campus area networks","Link local area networks","Make resources available to the Internet"],ans:3,exp:"A perimeter network (DMZ) hosts publicly accessible servers, making resources available to Internet users while protecting the internal network."},
+{n:19,t:"Wireless",q:"What happens when an 802.11b node starts broadcasting within range of an 802.11g access point?",opts:["Access point transmits but node can't receive","Both communicate — connection occurs","Both are unable to transmit","Node transmits but AP can't receive"],ans:1,exp:"802.11b and 802.11g are both 2.4 GHz and backward compatible. The AP will slow to 802.11b speed (11 Mbps) to accommodate the b client."},
+{n:20,t:"OSI Model",q:"According to the OSI model, the Session layer is responsible for establishing and managing connections. If this is incorrect, what correction is needed?",opts:["Presentation","Network","Transport","No change is needed"],ans:3,exp:"The Session layer (Layer 5) is indeed responsible for establishing, managing, and terminating sessions. No change is needed."},
+// ── SET 3: Network Devices ───────────────────────────────────
+{n:21,t:"Network Security",q:"Connecting to a private network address from a public network requires:",opts:["NAT (Network Address Translation)","DHCP","NAP (Network Access Protection)","DDNS (Dynamic DNS)"],ans:0,exp:"NAT translates private IP addresses to public ones, allowing private network devices to communicate with the public Internet."},
+{n:22,t:"DNS",q:"What type of record does DNS use to find a mail service?",opts:["SRV record","CNAME record","MX (Mail Exchanger) record","A (Host) record"],ans:2,exp:"MX (Mail Exchanger) records point to the mail server responsible for accepting email for a domain."},
+{n:23,t:"LAN Topologies",q:"The primary media access methods in LAN topologies are: (Choose two)",opts:["Contention and Token passing","Negotiation and Kerberos","Contention and Kerberos","Token passing and Negotiation"],ans:0,exp:"The two primary LAN media access methods are: (1) Contention (CSMA/CD used by Ethernet) and (2) Token passing (used by Token Ring)."},
+{n:24,t:"Switches vs Hubs",q:"What are two differences between switches and hubs? (Choose two)",opts:["Switches are slower than hubs — FALSE; Switches send data to all computers — FALSE","Switches capable of sending/receiving simultaneously + identify destination addresses — TRUE","Switches send data to all computers + slower than hubs — FALSE","Switches and hubs perform the same functions — FALSE"],ans:1,exp:"Switches can send and receive simultaneously (full-duplex) AND direct data only to the destination MAC address port — not to all ports like hubs."},
+{n:25,t:"Cabling",q:"Which feature of Category 5e STP cable reduces external interference?",opts:["Crosstalk","Shielding","Length","Twisting"],ans:1,exp:"The shielding in STP (Shielded Twisted Pair) cable provides a physical barrier against external electromagnetic interference (EMI)."},
+{n:26,t:"IP Addressing",q:"How many bits are in an IPv6 address?",opts:["32","64","128","256"],ans:2,exp:"IPv6 addresses are 128 bits long (written as 8 groups of 4 hex digits). IPv4 addresses are 32 bits."},
+{n:27,t:"Switches",q:"A Layer 2 device that connects multiple computers within a network is a:",opts:["Repeater","Switch","Router","Packet"],ans:1,exp:"A switch is a Layer 2 (Data Link) device that connects multiple computers in a network using MAC address tables."},
+{n:28,t:"Switches",q:"In addition to switching, multilayer switches also:",opts:["Provide Layer 3 routing functions","Interface only with specific cable types","Support only limited LAN ports","Operate using only Layer 1 and 2 protocols"],ans:0,exp:"Multilayer switches (MLS) perform both Layer 2 switching AND Layer 3 routing, combining the functions of switches and routers."},
+{n:29,t:"IP Addressing",q:"Which of the following represents a valid MAC address?",opts:["GV:ZC:KK:DK:FZ:CA","255.255.255.0","05:35:AB:6E:A1:25","127.0.0.1"],ans:2,exp:"MAC addresses are 48-bit hexadecimal values in the format XX:XX:XX:XX:XX:XX. Only 05:35:AB:6E:A1:25 is valid hex notation."},
+{n:30,t:"IP Addressing",q:"Which of these is a public address space?",opts:["192.168.0.0/16","197.16.0.0/12 — but 172.16.0.0/12 is private","10.0.0.0/8","172.16.0.0/12"],ans:1,exp:"172.16.0.0/12 is listed as correct here. Note: 10.0.0.0/8, 172.16.0.0/12, and 192.168.0.0/16 are all private. 197.x.x.x range is public. The listed correct answer is B from the reviewer."},
+// ── SET 4: Wireless & Cabling ────────────────────────────────
+{n:31,t:"Wireless",q:"The maximum throughput of an 802.11g network is:",opts:["2.4 GHz","54 GHz","2.4 Mbps","54 Mbps"],ans:3,exp:"802.11g has a maximum throughput of 54 Mbps and operates on the 2.4 GHz frequency band."},
+{n:32,t:"Network Topologies",q:"In which physical network topology is each computer connected to a central point?",opts:["Star","Mesh","Ring","Bus"],ans:0,exp:"In a Star topology, all devices connect to a central hub or switch. This makes it easy to add/remove devices and troubleshoot."},
+{n:33,t:"Wireless Security",q:"'WEP wireless encryption is the most susceptible to interception and decryption.' Is this correct?",opts:["WPA","No change needed — WEP is correct","WPA2","WPS"],ans:1,exp:"WEP IS the most susceptible to interception due to its weak RC4 implementation. No change is needed — the statement is correct."},
+{n:34,t:"IP Addressing",q:"When a client computer is unable to reach a DHCP server, it assigns an address in which range?",opts:["10.0.0.0 – 10.255.255.255","169.254.0.0 – 169.254.255.255","192.168.0.0 – 192.168.255.255","172.16.0.0 – 172.31.255.255"],ans:1,exp:"APIPA (Automatic Private IP Addressing) assigns addresses in the 169.254.0.0/16 range when a DHCP server is unreachable."},
+{n:35,t:"Cabling",q:"Which cable type transmits data the greatest distance?",opts:["Multimode fiber","Single mode fiber","Cat 5e","Cat 6"],ans:1,exp:"Single mode fiber can transmit data over much longer distances (tens of kilometers) than multimode fiber or copper cables."},
+{n:36,t:"Cabling",q:"What is the maximum cable length for a single Cat 5 UTP cable run?",opts:["285 feet / 86.87 meters","328 feet / 99.97 meters","432 feet / 131.67 meters","600 feet / 182.88 meters"],ans:1,exp:"The standard maximum segment length for Cat 5/5e/6 UTP cable is 100 meters (approximately 328 feet)."},
+{n:37,t:"Routing",q:"The default gateway address identifies the:",opts:["Device connecting the computer to the local network","Device connecting the computer to a remote network","Server providing name services","Server authenticating the user"],ans:1,exp:"The default gateway is the router interface that connects the local network to remote networks, including the Internet."},
+{n:38,t:"VPNs",q:"VPNs are implemented to provide:",opts:["Faster network speeds","Secure remote access over public networks","Larger broadcast domains","Reduced routing table size"],ans:1,exp:"VPNs create an encrypted tunnel over public networks (like the Internet) to provide secure remote access to private networks."},
+{n:39,t:"Wireless",q:"What happens when an 802.11a node broadcasts within range of an 802.11g access point?",opts:["AP transmits but node can't receive","Connection occurs","Both node and AP are unable to transmit","Node transmits but AP can't receive"],ans:2,exp:"802.11a uses 5 GHz while 802.11g uses 2.4 GHz — they are NOT compatible. Both the node and AP will be unable to communicate."},
+{n:40,t:"WAN Technologies",q:"Which two are connectivity options for WANs? (Choose two)",opts:["Token ring and Ethernet","Ethernet and Dial-up","Dial-up and Leased line","Token ring and Leased line"],ans:2,exp:"Dial-up (PSTN) and Leased lines are traditional WAN connectivity options. Ethernet and Token Ring are LAN technologies."},
+// ── SET 5: IP Addressing & Subnetting ────────────────────────
+{n:41,t:"VLANs",q:"Which type of port is used to support VLAN traffic between two switches?",opts:["Virtual port","WAN port","Trunk port","LAN port"],ans:2,exp:"A trunk port carries traffic for multiple VLANs between switches using 802.1Q tagging."},
+{n:42,t:"Commands",q:"The command-line tool used to list a host's active incoming connections is:",opts:["NETSTAT","IPCONFIG","NSLOOKUP","PING"],ans:0,exp:"NETSTAT (Network Statistics) displays active TCP connections, ports listening, and network statistics."},
+{n:43,t:"Routing",q:"A router's static route is set by the:",opts:["Adjacent network","Next upstream router","Network administrator","Routing protocol"],ans:2,exp:"Static routes are manually configured by a network administrator. Dynamic routes are learned via routing protocols."},
+{n:44,t:"IP Addressing",q:"Which represents the IPv6 loopback address?",opts:["127.0.0.1","192.168.0.1","FEC0:A8C0::AA01","::1"],ans:3,exp:"The IPv6 loopback address is ::1 (all zeros except the last bit). IPv4 loopback is 127.0.0.1."},
+{n:45,t:"Wireless",q:"Which two are published IEEE 802.11 wireless transmission standards? (Choose two)",opts:["802.11f and 802.11g","802.11g and 802.11n","802.11k and 802.11m","802.11f and 802.11n"],ans:1,exp:"802.11g (54 Mbps, 2.4 GHz) and 802.11n (up to 600 Mbps, 2.4/5 GHz) are published IEEE standards. 802.11f and 802.11k/m are not major throughput standards."},
+{n:46,t:"Switches",q:"One reason to replace an unmanaged switch with a managed switch is to:",opts:["Manage routing tables","Support multiple VLANs","Reduce collision domains","Route between networks"],ans:1,exp:"Managed switches support VLANs, QoS, port security, and SNMP monitoring. Unmanaged switches have none of these features."},
+{n:47,t:"Network Services",q:"A service that resolves NetBIOS names to IP addresses is:",opts:["DNS","ISP","ARP","WINS"],ans:3,exp:"WINS resolves NetBIOS names to IP addresses. DNS resolves FQDNs. ARP resolves IPs to MACs."},
+{n:48,t:"Network Topologies",q:"A characteristic of mesh topology is that it:",opts:["Uses a central hub","Cannot use wired connections","Uses redundant paths","Cannot use wireless connections"],ans:2,exp:"Mesh topology uses redundant paths between nodes, providing fault tolerance — if one path fails, data can take an alternate route."},
+{n:49,t:"Network Protocols",q:"Which of the following is a Layer 2 WAN protocol?",opts:["PPP (Point to Point Protocol)","SNMP","TCP","IP"],ans:0,exp:"PPP (Point-to-Point Protocol) is a Layer 2 (Data Link) WAN protocol used for direct connections between two network nodes."},
+{n:50,t:"DNS",q:"You ping a server by FQDN but get no response, then ping by IP and it works. Why?",opts:["PING is misconfigured","DNS is not resolving names","DHCP server is offline","NSLOOKUP is unavailable"],ans:1,exp:"If FQDN ping fails but IP ping works, the issue is name resolution — DNS is not resolving the hostname to its IP address."},
+// ── SET 6: Network Security & Services ───────────────────────
+{n:51,t:"Network Security",q:"Which type of network is most vulnerable to intrusion?",opts:["Dial-up","Wireless","Broadband","Leased line"],ans:1,exp:"Wireless networks broadcast signals through the air, making them accessible to anyone within range — making them most vulnerable to intrusion."},
+{n:52,t:"Network Security",q:"After enabling Windows Firewall, you can no longer access websites. Which two TCP ports need firewall exceptions?",opts:["Port 21 and Port 23","Port 23 and Port 25","Port 25 and Port 80","Port 80 and Port 443"],ans:3,exp:"HTTP uses Port 80 and HTTPS uses Port 443 — both needed for web browsing. Port 21 = FTP, Port 23 = Telnet, Port 25 = SMTP."},
+{n:53,t:"DNS",q:"What type of DNS record maps hostnames to IP addresses?",opts:["MX record","SRV record","A (Host) record","CNAME record"],ans:2,exp:"The A (Address) record maps a hostname directly to an IPv4 address. AAAA records do the same for IPv6."},
+{n:54,t:"Protocols",q:"Which of these is an application layer protocol?",opts:["TCP","FTP","IP","UDP"],ans:1,exp:"FTP (File Transfer Protocol) operates at the Application layer (Layer 7). TCP and UDP are Transport layer; IP is Network layer."},
+{n:55,t:"Network Topologies",q:"What are two characteristics of a mesh network topology? (Choose two)",opts:["Fault tolerant due to redundant connections; every node connects to every other node","Works best for large number of nodes; requires less cabling than star","Fault tolerant + works best for large number of nodes","Every node connects to every other node + requires less cabling"],ans:0,exp:"Mesh topology: (1) fault tolerant via redundancy, and (2) every node is connected to every other node (full mesh)."},
+{n:56,t:"Network Security",q:"To protect a network when connected to the Internet, you should use a:",opts:["Bridge","Firewall","Switch","Router"],ans:1,exp:"A firewall monitors and controls incoming and outgoing network traffic based on security rules, protecting the internal network."},
+{n:57,t:"DNS",q:"'The NTP value in a resource record indicates how long DNS servers cache a record before expiring it.' What correction is needed?",opts:["TTL (Time to Live)","SOA","NS","No change needed"],ans:0,exp:"TTL (Time to Live) is the DNS field that specifies how long other servers should cache a record. NTP is Network Time Protocol."},
+{n:58,t:"IP Addressing",q:"The loopback address of your computer is 127.0.0.1. Is this correct?",opts:["10.0.1.1","169.254.0.1","172.16.0.1","No change needed — 127.0.0.1 is correct"],ans:3,exp:"127.0.0.1 is indeed the IPv4 loopback address used to test the local network interface. No change is needed."},
+{n:59,t:"IP Addressing",q:"A computer with IP 169.254.48.97 cannot access network resources. To restore access, what should you check?",opts:["Firewall settings","Ping the gateway","Release and renew the IP address / check DHCP","Check the DNS server"],ans:2,exp:"169.254.x.x is an APIPA address, meaning the computer couldn't reach a DHCP server. Release/renew the IP or check DHCP server availability."},
+{n:60,t:"DNS",q:"'The process of replicating a zone file to multiple DNS servers is called zone replication.' What correction?",opts:["Zone transfer","Zone delegation","Zone replication is correct — no change","Zone propagation"],ans:0,exp:"The correct term is zone transfer — the process of copying DNS zone data from a primary DNS server to secondary servers."},
+// ── SET 7: TCP/IP & Routing ──────────────────────────────────
+{n:61,t:"Protocols",q:"Which protocol can be used to encrypt packets on the Internet?",opts:["SNMP","HTTPS","TFTP","HTTP"],ans:1,exp:"HTTPS (HTTP Secure) uses SSL/TLS to encrypt web traffic. SNMP manages devices; TFTP transfers files; HTTP is unencrypted."},
+{n:62,t:"IP Addressing",q:"A computer with IP 169.254.0.1 cannot access the network. Which service should you confirm is available?",opts:["WINS","DNS","DHCP","TFTP"],ans:2,exp:"169.254.x.x (APIPA) indicates the DHCP server is unreachable. Confirming DHCP is available will allow the client to obtain a proper IP."},
+{n:63,t:"DNS",q:"The service that resolves FQDNs (fully qualified domain names) to IP addresses is:",opts:["WINS","DNS","ISP","ARP"],ans:1,exp:"DNS (Domain Name System) resolves hostnames like www.example.com to IP addresses."},
+{n:64,t:"Network Security",q:"Internet Key Exchange (IKE) is responsible for which two functions? (Choose two)",opts:["Establishing network speed + verifying patch level","Negotiating algorithms to use + exchanging key information","Verifying patch level + exchanging key information","Negotiating algorithms + establishing network speed"],ans:1,exp:"IKE handles (1) negotiating the cryptographic algorithms to use and (2) exchanging key information to establish secure IPSec connections."},
+{n:65,t:"Wireless",q:"What happens when an 802.11a node broadcasts within range of an 802.11g AP?",opts:["AP transmits but node can't receive","Connection occurs","Both node and AP are unable to transmit","Node transmits but AP can't receive"],ans:2,exp:"802.11a (5 GHz) and 802.11g (2.4 GHz) operate on different frequency bands and are incompatible with each other."},
+{n:66,t:"WAN Technologies",q:"Which two are connectivity options for WANs? (Choose two)",opts:["Token ring and Ethernet","Ethernet and Dial-up","Dial-up and Leased line","Token ring and Leased line"],ans:2,exp:"Dial-up and leased lines are WAN connectivity options. Ethernet and Token Ring are LAN technologies."},
+{n:67,t:"Network Topologies",q:"What are three characteristics of Ethernet network topology? (Choose three)",opts:["Uses tokens to avoid collisions; uses coaxial/twisted/fiber; largest share of networks today","Can use coaxial/twisted/fiber; largest share of networks; can negotiate speeds","Uses tokens; cannot use coaxial; negotiates speeds","Largest share; is a non-switching protocol; uses tokens"],ans:1,exp:"Ethernet: (1) can use coaxial, twisted pair, or fiber media; (2) comprises the largest share of networks today; (3) can negotiate different transmission speeds (10/100/1000 Mbps)."},
+{n:68,t:"Cabling",q:"What is the minimum cabling requirement for a 100BaseTX network?",opts:["Category 3 UTP","Category 5 UTP","Category 6 UTP","Multimode fiber"],ans:1,exp:"100BaseTX (Fast Ethernet) requires at minimum Category 5 UTP cable to support 100 Mbps."},
+{n:69,t:"Cabling",q:"To directly connect the Ethernet NICs of two computers, you should use a:",opts:["Crossover cable","Straight cable","Rollover cable","Coaxial cable"],ans:0,exp:"A crossover cable swaps the transmit and receive pairs, allowing direct NIC-to-NIC connection without a switch/hub."},
+{n:70,t:"Routing",q:"Which two features should you install on Windows Server to use it as a software router? (Choose two)",opts:["Network Policy and Access Services + Routing and Remote Access","Routing and Remote Access + Remote Administration","Remote Administration + DirectAccess","Network Policy and DirectAccess"],ans:0,exp:"Both NPAS (Network Policy and Access Services) and RRAS (Routing and Remote Access Services) are required to implement software routing on Windows Server."},
+// ── SET 8: DNS, DHCP & Name Resolution ──────────────────────
+{n:71,t:"Cabling",q:"A cable meeting the 1000BaseT standard has a maximum length of:",opts:["100m","250m","500m","1000m"],ans:0,exp:"1000BaseT (Gigabit Ethernet over copper) has a maximum segment length of 100 meters, same as 100BaseT."},
+{n:72,t:"DHCP",q:"If a router separates a DHCP server from its clients, the clients will:",opts:["Immediately lose connectivity to all segments","Be unable to obtain their leases from the server","Immediately lose connectivity to the local segment","Receive an immediate renewal of their lease"],ans:1,exp:"Routers don't forward DHCP broadcast packets by default. Without a DHCP relay agent, clients across the router cannot reach the DHCP server."},
+{n:73,t:"Protocols",q:"Which protocol is a transport layer protocol?",opts:["FTP","IP","UDP","ASCII"],ans:2,exp:"UDP (User Datagram Protocol) operates at the Transport layer (Layer 4). FTP = Application; IP = Network; ASCII is a character encoding, not a protocol."},
+{n:74,t:"Network Security",q:"You need to set up a public-facing web server for a home office while protecting the internal network. What should you do?",opts:["Set the web server in a perimeter network (DMZ)","Block access on ports 80 and 443","Configure firewall to block ports 80 and 443","Set the web server's IP to a private address"],ans:0,exp:"Placing the web server in a DMZ (perimeter network) exposes it to the Internet while keeping the internal network protected."},
+{n:75,t:"Wireless",q:"Which IEEE 802.11 Wi-Fi standard requires dual antennas to run in all supported frequencies?",opts:["802.11a","802.11b","802.11g","802.11n"],ans:3,exp:"802.11n uses MIMO (Multiple Input Multiple Output) technology requiring multiple antennas to achieve higher throughput on both 2.4 GHz and 5 GHz."},
+{n:76,t:"Network Services",q:"Which service masks internal IP addresses from outside the network?",opts:["DHCP","WINS","NAT","DNS"],ans:2,exp:"NAT (Network Address Translation) hides internal private IP addresses by translating them to a single public IP address."},
+{n:77,t:"Protocols",q:"The query protocol used to locate resources on a network is:",opts:["UDP","LDAP","Tracert","Telnet"],ans:1,exp:"LDAP (Lightweight Directory Access Protocol) is used to locate and access directory resources (users, devices) on a network."},
+{n:78,t:"Network Topologies",q:"In a physical star topology, the central device is referred to as a:",opts:["Bridge","Server","Segmenter","Hub"],ans:3,exp:"In a star topology, all devices connect to a central hub (or switch). The hub is the central connecting point."},
+{n:79,t:"Routing",q:"You need to divide a network into three subnets. Which device should you use?",opts:["Hub","Bridge","Router","Segmenter"],ans:2,exp:"A router connects and routes traffic between different subnets (network segments). Hubs and bridges cannot subnet."},
+{n:80,t:"Routing",q:"One advantage of dynamic routing is that it:",opts:["Automatically maintains routing tables","Limits traffic from routing protocols","Reduces broadcast traffic","Automatically enables DHCP"],ans:0,exp:"Dynamic routing protocols (OSPF, RIP, EIGRP) automatically update routing tables as network topology changes — no manual admin needed."},
+// ── SET 9: Network Commands & Troubleshooting ────────────────
+{n:81,t:"IP Addressing",q:"The topology of a LAN is defined by the:",opts:["Number of devices to connect","Physical and logical characteristics","Distance between workstations","Type of cable used"],ans:1,exp:"LAN topology is defined by both its physical layout (how devices are physically connected) and its logical characteristics (how data flows)."},
+{n:82,t:"Switches",q:"A network device that associates a MAC address with a port is a:",opts:["DSL modem","Hub","Router","Switch"],ans:3,exp:"Switches maintain a MAC address table (CAM table) associating each MAC address with the port where that device is connected."},
+{n:83,t:"Network Types",q:"Which type of network covers the broadest area?",opts:["WAN","CAN","LAN","PAN"],ans:0,exp:"WAN (Wide Area Network) covers the largest geographic area — spanning cities, countries, or even the globe. LAN=local; CAN=campus; PAN=personal."},
+{n:84,t:"Protocols",q:"Which command displays the ports your computer is listening on?",opts:["nslookup","nbtstat","ping","netstat"],ans:3,exp:"netstat -an displays all active connections and ports the computer is listening on."},
+{n:85,t:"Switches",q:"Which network device interconnects computers in a workgroup, can be remotely configured, and provides the best throughput?",opts:["Unmanaged switch","Hub","Router","Managed switch"],ans:3,exp:"A managed switch provides remote configuration, VLAN support, QoS, and higher throughput than unmanaged switches or hubs."},
+{n:86,t:"IP Addressing",q:"The default subnet mask for a Class C network is:",opts:["255.255.255.252","255.255.255.240","255.255.255.192","255.255.255.0"],ans:3,exp:"Class C networks use /24 (255.255.255.0), providing 254 usable host addresses. Class A = 255.0.0.0; Class B = 255.255.0.0."},
+{n:87,t:"Wireless",q:"Security is a concern on wireless networks due to:",opts:["The radio broadcast access method","Spread spectrum issues","Frequency modulation issues","Potential for crosstalk"],ans:0,exp:"Wireless signals are broadcast through the air, making them accessible to anyone within range — the radio broadcast method creates inherent security risks."},
+{n:88,t:"DNS",q:"Which DNS record type specifies an alias name of another address record?",opts:["MX","CNAME","NS","SOA"],ans:1,exp:"CNAME (Canonical Name) record creates an alias that points to another hostname. For example, www.example.com → example.com."},
+{n:89,t:"Commands",q:"Tracert is used to:",opts:["Manage routing tables dynamically","Manage session-oriented connections","Report the route taken by packets across an IP network","Report the shortest route between networks"],ans:2,exp:"Tracert (Traceroute) traces the path packets take across the network, showing each hop and the time taken to reach each router."},
+{n:90,t:"DHCP",q:"Which protocol is responsible for automatically assigning IP addresses?",opts:["HTTP","DHCP","DNS","WINS"],ans:1,exp:"DHCP (Dynamic Host Configuration Protocol) automatically assigns IP addresses, subnet masks, gateways, and DNS servers to clients."},
+// ── SET 10: Wireless, VPNs & Advanced ───────────────────────
+{n:91,t:"Network Types",q:"A network that separates an organization's private network from a public network is a/an:",opts:["Firewall","Extranet","Perimeter network","Internet"],ans:2,exp:"A perimeter network (DMZ — Demilitarized Zone) acts as a buffer between the private internal network and the public Internet."},
+{n:92,t:"VPNs",q:"Which technology can you use to extend an internal network across shared or public networks?",opts:["VLAN","Microsoft ASP.NET","Microsoft .NET Framework","VPN"],ans:3,exp:"A VPN (Virtual Private Network) uses encryption and tunneling to extend a private network securely over public infrastructure."},
+{n:93,t:"Network Types",q:"A private network that allows members of an organization to exchange data is an:",opts:["Extranet","Ethernet","Intranet","Internet"],ans:2,exp:"An Intranet is a private network accessible only to members of an organization. An Extranet extends this to trusted external partners."},
+{n:94,t:"VPNs",q:"A VPN is a/an:",opts:["Encrypted connection across the Internet","Virtual network within your LAN","Communication tunnel between VLANs","Personal network for your use only"],ans:0,exp:"A VPN creates an encrypted tunnel across the Internet (or public network) to securely connect remote users to a private network."},
+{n:95,t:"Wireless",q:"Which IEEE 802.11 standard requires dual antennas for all supported frequencies?",opts:["802.11a","802.11b","802.11g","802.11n"],ans:3,exp:"802.11n uses MIMO with multiple antennas to achieve higher throughput on both 2.4 GHz and 5 GHz bands simultaneously."},
+{n:96,t:"Wireless",q:"Which wireless authentication method provides the highest level of security?",opts:["WEP","IEEE 802.11n","WPA (Wi-Fi Protected Access)","IEEE 802.11a"],ans:2,exp:"WPA (and WPA2) provides much stronger encryption and authentication than WEP. WPA2 with AES is the current standard."},
+{n:97,t:"IP Addressing",q:"Which subnet mask is valid?",opts:["255.255.255.240","255.255.255.228","255.255.255.164","255.255.255.245"],ans:0,exp:"255.255.255.240 (/28) is valid — it's a continuous run of 1s in binary. Valid masks must be contiguous 1s followed by 0s."},
+{n:98,t:"Protocols",q:"The default port used for Telnet is:",opts:["23","25","80","8080"],ans:0,exp:"Telnet uses TCP port 23. SMTP = 25; HTTP = 80; HTTP alternate = 8080."},
+{n:99,t:"OSI Model",q:"In which OSI layer does routing occur?",opts:["Transport","Network","Data Link","Physical"],ans:1,exp:"Routing occurs at Layer 3 (Network layer). Routers use IP addresses to forward packets between networks."},
+{n:100,t:"DHCP",q:"Which address indicates that your router's DHCP service is NOT functioning?",opts:["169.254.1.15","172.16.1.15","192.168.1.15","10.19.1.15"],ans:0,exp:"169.254.x.x is an APIPA address — automatically assigned when DHCP is unavailable. This indicates the DHCP server is not responding."},
+// ── SET 11: Network Types & Advanced Protocols ───────────────
+{n:101,t:"Network Types",q:"Two companies want to share data using the Internet. Which type of network provides this solution?",opts:["Ethernet","Intranet","Extranet","Perimeter"],ans:2,exp:"An Extranet extends a private network to trusted external partners (like other companies) over the Internet."},
+{n:102,t:"Network Services",q:"Which Microsoft network service establishes a connection to a corporate LAN without any user action?",opts:["VPN","Remote Desktop","DirectAccess","NAP"],ans:2,exp:"DirectAccess automatically establishes a secure connection to the corporate network whenever the computer has Internet access — no user action needed."},
+{n:103,t:"Network Topologies",q:"Two advantages of star topology over ring topology in a computer lab: (Choose two)",opts:["Failure of central device doesn't bring down network — FALSE; central point allows flexibility — TRUE","Central point allows flexibility + easy to add devices — TRUE","Data travels redundant paths — FALSE; easy to add devices — TRUE","Failure of central device is fine + redundant paths — FALSE"],ans:1,exp:"Star topology advantages: (1) central connection point provides flexibility and scalability, and (2) easy to add/remove devices without affecting others."},
+{n:104,t:"WAN Technologies",q:"Which technology provides the highest bit rate?",opts:["T1","E1","DS3","ISDN"],ans:2,exp:"DS3 (also called T3) provides approximately 44.736 Mbps. T1 = 1.544 Mbps; E1 = 2.048 Mbps; ISDN BRI = 128 Kbps."},
+{n:105,t:"Network Topologies",q:"A node within a LAN must have a network interface device and a:",opts:["Network account","Table of all network nodes","Host address","Resource to share"],ans:2,exp:"Every network node must have a NIC (network interface device) and an IP address (host address) to communicate on the network."},
+{n:106,t:"Wireless",q:"Which wireless communication problem is caused by electromagnetic waves?",opts:["Fading","Attenuation","Interference","Diffraction"],ans:2,exp:"Electromagnetic interference (EMI) is caused by electromagnetic waves from other devices (microwaves, cordless phones, etc.) disrupting wireless signals."},
+{n:107,t:"DNS",q:"The top-level domain of www.adventureworks.com is:",opts:["www","adventureworks","adventureworks.com","com"],ans:3,exp:"In www.adventureworks.com — 'com' is the TLD (Top-Level Domain), 'adventureworks' is the domain, 'www' is the hostname."},
+{n:108,t:"DHCP",q:"When a client's DHCP-issued address expires, the client will:",opts:["Select a new address and request approval from DHCP","Require manual static IP configuration","Attempt to obtain a new address by broadcasting","Continue using the address until notified to stop"],ans:2,exp:"When a DHCP lease expires, the client broadcasts a DHCP Discover message to obtain a new lease from any available DHCP server."},
+{n:109,t:"VPNs",q:"Which uses a tunneling protocol?",opts:["Internet","VPN","Extranet","VLAN"],ans:1,exp:"VPNs use tunneling protocols (PPTP, L2TP, IPSec, OpenVPN) to create encrypted tunnels through public networks."},
+{n:110,t:"Network Security",q:"For which two reasons should you use IPSec between computers? (Choose two)",opts:["Data compression and integrity","Data integrity and confidentiality","Data redundancy and compression","Data confidentiality and redundancy"],ans:1,exp:"IPSec provides (1) data integrity (ensuring data isn't tampered with) and (2) data confidentiality (encryption). It does not provide compression or redundancy."},
+// ── SET 12: DNS Records & Network Addressing ─────────────────
+{n:111,t:"DNS",q:"The hostname of the FQDN mail.exchange.corp.nwtraders.com is:",opts:["corp","com","nwtraders","exchange","mail"],ans:4,exp:"In an FQDN, the hostname is the leftmost part. In mail.exchange.corp.nwtraders.com, 'mail' is the hostname."},
+{n:112,t:"Network Devices",q:"A MAC address identifies a/an:",opts:["UPnP device","Local broadcast domain","Network Interface Card (NIC)","Local Area Network (LAN)"],ans:2,exp:"A MAC (Media Access Control) address is a unique hardware identifier assigned to a Network Interface Card (NIC)."},
+{n:113,t:"Routing",q:"The ipconfig command will:",opts:["Configure routers","Display a client's IP address configuration","Display a client's broadcast mode","Configure DHCP clients"],ans:1,exp:"ipconfig displays the computer's current IP configuration: IP address, subnet mask, default gateway, and DNS servers."},
+{n:114,t:"Wireless",q:"If an 802.11g Internet connection has connectivity problems, what may be the cause?",opts:["A cordless phone","A cellular phone","Incandescent lights","EMI (Electromagnetic interference)"],ans:3,exp:"802.11g uses 2.4 GHz. Cordless phones and microwaves also use 2.4 GHz, creating EMI. EMI is the broader cause encompassing cordless phone interference."},
+{n:115,t:"Routing",q:"The function of a router is to:",opts:["Provide IP subnet masks for hosts","Forward traffic to other networks","Broadcast routing tables to clients","Store tables for name resolution"],ans:1,exp:"A router's primary function is to forward (route) packets between different networks based on the destination IP address."},
+{n:116,t:"Wireless",q:"Which factor has the biggest impact on data transmission speed in a wireless network?",opts:["Access method used","Transmission standard of equipment used","Use of strong encryption","Transmission wattage rating"],ans:1,exp:"The 802.11 standard (a/b/g/n/ac) directly determines the maximum throughput. Equipment standard has the biggest impact on wireless speed."},
+{n:117,t:"IP Addressing",q:"'An ARP table is used to associate IP addresses with hostnames.' What correction is needed?",opts:["MAC addresses","Host records","IP addresses — no change","Subnet masks"],ans:0,exp:"An ARP table associates IP addresses with MAC addresses (not hostnames). DNS/WINS handles hostname-to-IP mapping."},
+{n:118,t:"Protocols",q:"The default port used for SMTP is:",opts:["23","25","80","8080"],ans:1,exp:"SMTP (Simple Mail Transfer Protocol) uses TCP port 25 by default. Telnet = 23; HTTP = 80."},
+{n:119,t:"IP Addressing",q:"'Each IPv4 address consists of a MAC address and data link layer address.' What correction?",opts:["Network ID and host ID","Network ID and MAC address","Host ID and data link address","No change needed"],ans:0,exp:"An IPv4 address consists of a Network ID (network portion) and Host ID (host portion), not a MAC address."},
+{n:120,t:"Routing",q:"'Dynamic routing is fault tolerant.' Is this correct?",opts:["Static routing is fault tolerant — needs correction","Dynamic routing is NOT fault tolerant — needs correction","Dynamic routing is fault tolerant — No change needed","Least cost routing is fault tolerant"],ans:2,exp:"Dynamic routing IS fault tolerant — routing protocols automatically find alternate paths when a route fails. No change is needed."},
+// ── SET 13: Subnetting & Advanced IP ─────────────────────────
+{n:121,t:"IP Addressing",q:"The default subnet mask for a Class B network is:",opts:["0.0.0.255","0.0.255.255","255.0.0.0","255.255.0.0"],ans:3,exp:"Class B networks use /16 = 255.255.0.0, providing 65,534 host addresses. Class A = /8; Class C = /24."},
+{n:122,t:"IP Addressing",q:"Teredo tunneling is a protocol that:",opts:["Translates IPv4 to IPv6","Allows IPv6 connectivity through IPv4 devices","Provides VPN security","Dynamically allocates IPv6 addresses"],ans:1,exp:"Teredo allows IPv6 packets to traverse IPv4 infrastructure by encapsulating IPv6 packets inside IPv4 UDP packets."},
+{n:123,t:"Wireless",q:"Which wireless communication problem is caused by electromagnetic waves?",opts:["Fading","Attenuation","Interference","Diffraction"],ans:2,exp:"Electromagnetic interference (EMI) from devices like microwaves or cordless phones disrupts wireless signals."},
+{n:124,t:"IP Addressing",q:"To which IP configuration does CIDR notation 192.168.1.1/25 refer?",opts:["192.168.1.1 255.255.255.64","192.168.1.1 255.255.255.1","192.168.1.1 255.255.255.32","192.168.1.1 255.255.255.128"],ans:3,exp:"/25 means 25 bits are the network portion. The subnet mask is 11111111.11111111.11111111.10000000 = 255.255.255.128."},
+{n:125,t:"DNS",q:"'A secondary zone is the first DNS zone to which all updates for records are written.' What correction?",opts:["Primary zone","Forward lookup zone","Stub zone","No change needed"],ans:0,exp:"A Primary zone is the authoritative, read-write copy of a DNS zone. A Secondary zone is a read-only copy replicated from the primary."},
+{n:126,t:"Network Security",q:"'All session data is encrypted between machines while using Telnet.' What correction?",opts:["Not encrypted — needs correction","SSH — needs correction","Encrypted — no change","TLS encrypted"],ans:0,exp:"Telnet transmits data in plain text — it is NOT encrypted. SSH should be used instead for secure encrypted sessions."},
+{n:127,t:"IP Addressing",q:"'IPv4 multicast addresses range from 192.168.0.0 to 192.168.255.255.' What correction?",opts:["127.0.0.0 to 127.255.255.255","10.0.0.0 to 10.255.255.255","224.0.0.0 to 239.255.255.255","169.254.0.0 to 169.254.255.255"],ans:2,exp:"IPv4 multicast addresses use Class D: 224.0.0.0 to 239.255.255.255. 192.168.x.x is private unicast range."},
+{n:128,t:"Protocols",q:"What are two characteristics of CSMA/CD? (Choose two)",opts:["Checks for collision + does round-robin search","Checks for collision + waits until transmission medium is idle","Signals intent to transmit + round-robin search","Round-robin search + waits for idle medium"],ans:1,exp:"CSMA/CD: (1) Carrier Sense — checks if medium is idle before transmitting; (2) Collision Detection — checks if a collision occurred and backs off."},
+{n:129,t:"Commands",q:"Which setting is used to determine DNS settings on a client computer?",opts:["TELNET","NSLOOKUP","PATHPING","NETSTAT"],ans:1,exp:"NSLOOKUP is a command-line tool that queries DNS servers and can display current DNS settings."},
+{n:130,t:"IP Addressing",q:"Which network does 220.100.100.100 belong to?",opts:["220.100.100.0/24","220.100.100.1/24","255.255.255.0/24","255.255.255.1/24"],ans:0,exp:"With a /24 (255.255.255.0) mask, the network address is 220.100.100.0 — the host portion (last octet) is zeroed out."},
+// ── SET 14: Network Fundamentals Review ──────────────────────
+{n:131,t:"Network Types",q:"An LAN node must have which two? (Choose two)",opts:["Username and password + share name","Share name + NIC","NIC + IP address","IP address + table of all nodes"],ans:2,exp:"A LAN node must have (1) a NIC to physically connect to the network and (2) an IP address so other nodes can communicate with it."},
+{n:132,t:"VLANs",q:"What are three advantages of VLANs? (Choose three)",opts:["They require a router to connect VLANs on another switch — TRUE; compartmentalize network — TRUE; act as same LAN regardless of location — TRUE","Logically address packets using IP — FALSE; efficient with single VLAN per switch — FALSE; compartmentalize — TRUE","All five statements are true","Only compartmentalization is an advantage"],ans:0,exp:"VLAN advantages: (1) a router is needed to connect VLANs on different switches, (2) compartmentalize network traffic, (3) nodes act as if on the same LAN regardless of physical location."},
+{n:133,t:"DNS",q:"Which DNS uses pointer records and A records?",opts:["IDS","DNS Server","NAT Server","IPS"],ans:1,exp:"DNS servers use A records (hostname to IP) and PTR (pointer) records (IP to hostname for reverse DNS lookups)."},
+{n:134,t:"WAN Technologies",q:"What is the bit rate for a North American T3 circuit?",opts:["1.544 Mbps","44.736 Mbps","64 Kbps","100 Mbps"],ans:1,exp:"T3 (DS3) carries 44.736 Mbps — equivalent to 28 T1 lines bundled together. T1 = 1.544 Mbps."},
+{n:135,t:"Routing",q:"Which metric does RIP (Routing Information Protocol) use to determine the least costly route?",opts:["Bandwidth","Delay","Hop count","Interface"],ans:2,exp:"RIP uses hop count as its only metric — each router hop counts as 1. Maximum is 15 hops; 16 = unreachable."},
+{n:136,t:"Switches",q:"What is a similarity between Layer 2 and Layer 3 switches?",opts:["Both route packets between networks","Both filter traffic using IP addresses","Both can be used to segment a network","Both use only MAC addresses"],ans:2,exp:"Both Layer 2 and Layer 3 switches can be used to segment a network. L2 switches segment by MAC; L3 by IP (routing between VLANs/subnets)."},
+{n:137,t:"Cabling",q:"You need to run four Ethernet drops of approximately 125 feet each with interference. Which cable type?",opts:["STP Cat 5e","UTP Cat 5e","Cat 3","UTP Cat 6"],ans:0,exp:"STP (Shielded Twisted Pair) Cat 5e provides shielding against electromagnetic interference, making it ideal for environments with interference."},
+{n:138,t:"Cabling",q:"Two characteristics of fiber optic cable: (Choose two)",opts:["Requires metal conduit; supports splicing","Immune to EMI; supports splicing","Immune to EMI; requires metal conduit","Supports splicing; requires polishing for end connectors"],ans:1,exp:"Fiber optic cables: (1) immune to electromagnetic interference (no metal conductors), (2) support splicing for joining cable segments."},
+{n:139,t:"VLANs",q:"One reason to incorporate VLANs in a network is to:",opts:["Increase available IP addresses","Increase available MAC addresses","Reduce the number of broadcast domains","Reduce the number of nodes in a broadcast domain"],ans:3,exp:"VLANs reduce the number of nodes in each broadcast domain, limiting broadcast traffic and improving network performance."},
+{n:140,t:"Network Devices",q:"An example of a network device that associates a network address with a port is a:",opts:["Switch","Router","Hub","DSL modem"],ans:1,exp:"A router associates IP addresses (network addresses) with its ports. A switch associates MAC addresses with ports."},
+// ── SET 15: Protocols, Ports & Security ──────────────────────
+{n:141,t:"IP Addressing",q:"'IPSec policies for two machines on a LAN can be modified using the IPSec policy snap-in on Windows 7.' Is this correct?",opts:["No change needed — this is correct","Use Group Policy instead","Use Windows Firewall instead","Use Registry Editor instead"],ans:0,exp:"The IPSec policy snap-in (in MMC) is indeed a valid tool for modifying IPSec policies on Windows 7. No change is needed."},
+{n:142,t:"Cabling",q:"Which cable types are TRUE about fiber optic? (Best answer)",opts:["Requires metal conduit; can have indexes","Immune to EMI and supports splicing","Requires metal conduit and cannot be spliced","Same as STP copper cabling"],ans:1,exp:"Fiber optic is immune to electromagnetic interference (EMI) and can be spliced. It does not require metal conduit."},
+{n:143,t:"Network Topologies",q:"Which determines the media access method used in a network?",opts:["Number of hosts on network","Number of domain servers on segment","Maximum speed of media","Topology and protocols"],ans:3,exp:"The media access method (CSMA/CD, token passing) is determined by the network topology (Ethernet=CSMA/CD, Token Ring=token passing) and protocols in use."},
+{n:144,t:"Network Security",q:"'To set lower security settings in Internet Explorer for an extranet site, add the URL to the Local Intranet zone.' What correction?",opts:["Trusted Sites zone — needs correction","Local Intranet — no change needed","Internet zone","Restricted Sites zone"],ans:0,exp:"For an extranet site, you would add it to the Trusted Sites zone (not Local Intranet, which is for internal sites)."},
+{n:145,t:"DNS",q:"Which DNS record type specifies the host that is the authority for a given domain?",opts:["NS","MX","CNAME","SOA"],ans:3,exp:"SOA (Start of Authority) record specifies the primary DNS server for a zone and administrative info like serial number and refresh intervals."},
+{n:146,t:"Protocols",q:"The ping tool is used to: (Choose two)",opts:["Determine network portion of address + self-test NIC","Self-test a host's NIC + determine if a host is reachable","Determine if host reachable + manage UDP sessions","Self-test NIC + determine network portion"],ans:1,exp:"ping is used to: (1) self-test the local network interface (ping 127.0.0.1), and (2) determine if a remote host is reachable and measure round-trip time."},
+{n:147,t:"WAN Technologies",q:"Where would a T3 connection be most appropriate?",opts:["Server to network in main campus server room","Main campus to a large satellite campus","Computer lab PC to lab printer","Library laptop to Internet"],ans:1,exp:"T3 (44.736 Mbps) is appropriate for high-bandwidth connections between major sites, such as main campus to large satellite campus."},
+{n:148,t:"Network Security",q:"'A VPN protects a network's perimeter by monitoring traffic as it enters and leaves.' What correction?",opts:["Firewall — needs correction","VPN — no change needed","IDS — needs correction","Proxy server"],ans:0,exp:"A Firewall monitors and controls traffic entering/leaving a network perimeter. A VPN creates encrypted tunnels — it doesn't monitor perimeter traffic."},
+{n:149,t:"Wireless",q:"Attenuation in a wireless network signal is a result of:",opts:["Number of wireless nodes connected","Distance from the access point","Interference from cellular phones","Encryption of the signal"],ans:1,exp:"Wireless signal attenuation (signal strength reduction) is primarily caused by distance from the access point — signal weakens as distance increases."},
+{n:150,t:"IP Addressing",q:"Which network does the IP address 220.100.100.100 belong to?",opts:["220.100.100.0/24","220.100.100.1/24","255.255.255.0/24","255.255.255.1/24"],ans:0,exp:"With /24 mask, the network address zeros out the last octet: 220.100.100.0. The host 220.100.100.100 is in the 220.100.100.0/24 network."},
+// ── SET 16: Commands & Troubleshooting ───────────────────────
+{n:151,t:"Commands",q:"Which command verifies that a server is connected to the network?",opts:["IPCONFIG","ROUTE","PING","CHECK"],ans:2,exp:"PING sends ICMP echo requests to test connectivity to a remote host. A response confirms network connectivity."},
+{n:152,t:"Cabling",q:"Which connector is used on a 100BaseT Ethernet cable?",opts:["RJ-11","RJ-45","TNC","BNC"],ans:1,exp:"RJ-45 is the standard connector for Ethernet (100BaseT, 1000BaseT) cables. RJ-11 is used for telephone lines."},
+{n:153,t:"OSI Model",q:"At which layer of the OSI model are hardware (MAC) addresses referenced?",opts:["Network","Application","Data Link","Physical"],ans:2,exp:"MAC (hardware) addresses operate at Layer 2 — the Data Link layer. Network layer uses IP addresses; Physical layer deals with bits/signals."},
+{n:154,t:"Network Topologies",q:"What are two characteristics of a mesh network topology? (Choose two)",opts:["Fault tolerant due to redundant connections; works best for large number of nodes","Every node connects to every other node; requires less cabling than star","Fault tolerant + every node connects to every other node","Works best for large nodes + requires less cabling"],ans:2,exp:"Full mesh: (1) fault tolerant via redundant connections, (2) every node is directly connected to every other node."},
+{n:155,t:"Network Security",q:"To protect a network connected to the Internet, use a:",opts:["Bridge","Firewall","Switch","Router"],ans:1,exp:"A firewall is the primary security device for protecting a network from Internet threats by filtering traffic."},
+{n:156,t:"DNS",q:"Which DNS record type specifies an alias for another address record?",opts:["MX","CNAME","NS","SOA"],ans:1,exp:"CNAME (Canonical Name) records create aliases. For example, ftp.example.com can be a CNAME pointing to server1.example.com."},
+{n:157,t:"Commands",q:"Tracert is used to:",opts:["Manage routing tables dynamically","Manage session connections","Report the route taken by packets across a network","Report shortest route between networks"],ans:2,exp:"Tracert traces the route packets take, showing each hop (router) along the path and the latency to reach each one."},
+{n:158,t:"Commands",q:"Which command is used to verify a server is connected to the network?",opts:["IPCONFIG","ROUTE","PING","NETSTAT"],ans:2,exp:"PING tests basic network connectivity by sending ICMP echo requests and waiting for replies."},
+{n:159,t:"IP Addressing",q:"A computer has IP 169.254.48.97. To restore network access, what should you do?",opts:["Update firewall rules","Ping the gateway","Check DHCP server availability and release/renew","Restart DNS client"],ans:2,exp:"169.254.x.x (APIPA) means DHCP server is unreachable. Check DHCP server and run 'ipconfig /release' then 'ipconfig /renew'."},
+{n:160,t:"Protocols",q:"Which protocol is a transport layer protocol?",opts:["FTP","IP","UDP","HTTP"],ans:2,exp:"UDP (User Datagram Protocol) is a Transport layer (Layer 4) protocol. FTP and HTTP are Application layer; IP is Network layer."},
+// ── SET 17: Mixed Review ──────────────────────────────────────
+{n:161,t:"WAN Technologies",q:"'Plain old telephone service (POTS), most ISDN lines, and switched T1 lines are examples of Message Switching.' What correction?",opts:["Circuit switching — needs correction","Packet switching — needs correction","Message switching — no change","Frame relay switching"],ans:0,exp:"POTS, ISDN, and switched T1 are examples of Circuit Switching — a dedicated path is established for the duration of the call."},
+{n:162,t:"Network Services",q:"Which service resolves FQDNs to IP addresses?",opts:["WINS","DNS","ISP","ARP"],ans:1,exp:"DNS (Domain Name Service) resolves fully qualified domain names to IP addresses."},
+{n:163,t:"Network Topologies",q:"In a physical star topology, the central device is a:",opts:["Bridge","Server","Segmenter","Hub"],ans:3,exp:"A hub is the central connecting device in a star topology. Modern networks use switches instead of hubs."},
+{n:164,t:"Routing",q:"You need to divide a network into three subnets. Which device?",opts:["Hub","Bridge","Router","Segmenter"],ans:2,exp:"Routers create separate network segments (subnets) and route traffic between them. Hubs and bridges cannot create separate subnets."},
+{n:165,t:"VPNs",q:"Which uses a tunneling protocol?",opts:["Internet","VPN","Extranet","VLAN"],ans:1,exp:"VPNs use tunneling protocols (PPTP, L2TP, IPSec, OpenVPN) to encapsulate and encrypt traffic."},
+{n:166,t:"Network Security",q:"For which two reasons should you use IPSec? (Choose two)",opts:["Data compression and redundancy","Data integrity and confidentiality","Data redundancy and compression","Data confidentiality and compression"],ans:1,exp:"IPSec ensures data integrity (data hasn't been altered) and data confidentiality (data is encrypted). It doesn't provide compression or redundancy."},
+{n:167,t:"DNS",q:"The hostname of FQDN mail.exchange.corp.nwtraders.com is:",opts:["corp","com","nwtraders","exchange","mail"],ans:4,exp:"The hostname is the leftmost label in an FQDN. 'mail' is the hostname; 'exchange.corp.nwtraders.com' is the domain."},
+{n:168,t:"Network Devices",q:"A MAC address identifies a/an:",opts:["UPnP device","Local broadcast domain","Network Interface Card (NIC)","Local Area Network (LAN)"],ans:2,exp:"A MAC address is a unique 48-bit hardware identifier burned into each Network Interface Card (NIC)."},
+{n:169,t:"Routing",q:"The ipconfig command will:",opts:["Configure routers","Display a client's IP address configuration","Display a client's broadcast mode","Configure DHCP clients"],ans:1,exp:"ipconfig displays the IP configuration (IP, mask, gateway, DNS) of the current computer."},
+{n:170,t:"Wireless",q:"If an 802.11g connection has problems, what may be the cause?",opts:["A cordless phone operating on 2.4 GHz","A cellular phone","Incandescent lights","Any EMI source"],ans:3,exp:"802.11g operates at 2.4 GHz. Cordless phones, baby monitors, and microwaves on 2.4 GHz create EMI. The general answer is any EMI source."},
+// ── SET 18: Final Review Mix ─────────────────────────────────
+{n:171,t:"IP Addressing",q:"What is the WAN perimeter network setup coffee shop needs in addition to a web server?",opts:["Network printer","Web server only","File server and Wi-Fi","Network printer and web server"],ans:3,exp:"A perimeter network (DMZ) should contain public-facing resources: the web server AND the network printer accessible to public. Internal resources (POS terminals, file server, office PC) stay inside."},
+{n:172,t:"Routing",q:"Which is an example of a network device that associates a network address with a port?",opts:["Switch","Router","Hub","DSL modem"],ans:1,exp:"A router associates network (IP) addresses with its ports/interfaces. A switch associates MAC addresses with ports."},
+{n:173,t:"IP Addressing",q:"'A secondary DNS zone is the first zone to which all updates for records are written.' What correction?",opts:["Primary zone","Forward lookup zone","Stub zone","No change needed"],ans:0,exp:"A Primary zone is the authoritative, writable DNS zone. Secondary zones are read-only replicas of the primary."},
+{n:174,t:"Protocols",q:"The default port used for SMTP is:",opts:["23","25","80","8080"],ans:1,exp:"SMTP uses port 25. Telnet = 23; HTTP = 80; HTTP alternative = 8080."},
+{n:175,t:"Network Types",q:"A private network allowing organization members to exchange data is an:",opts:["Extranet","Ethernet","Intranet","Internet"],ans:2,exp:"An Intranet is a private internal network. An Extranet extends this to trusted external partners."},
+{n:176,t:"VPNs",q:"A VPN is a/an:",opts:["Encrypted connection across the Internet","Virtual network within your LAN","Communication tunnel between VLANs","Personal network for your use only"],ans:0,exp:"A VPN creates an encrypted, secure tunnel across a public network (Internet) to connect remote users to private networks."},
+{n:177,t:"DNS",q:"The top-level domain of www.adventureworks.com is:",opts:["www","adventureworks","adventureworks.com","com"],ans:3,exp:"TLD (Top-Level Domain) is the rightmost part: .com. 'adventureworks' is the second-level domain; 'www' is the hostname."},
+{n:178,t:"Network Security",q:"Which wireless authentication provides highest security?",opts:["WEP","IEEE 802.11n","WPA","IEEE 802.11a"],ans:2,exp:"WPA (and WPA2 with AES-CCMP) provides the strongest wireless security. WEP is easily cracked and should not be used."},
+{n:179,t:"IP Addressing",q:"Teredo tunneling allows IPv6 connectivity through IPv4 devices. Which best describes this?",opts:["Translates IPv4 to IPv6 at the router","Allows IPv6 packets to traverse IPv4 networks via encapsulation","Provides VPN-level security","Dynamically allocates IPv6 addresses"],ans:1,exp:"Teredo encapsulates IPv6 packets inside IPv4 UDP packets, allowing IPv6 hosts to communicate through IPv4 infrastructure."},
+{n:180,t:"Commands",q:"Which command displays DNS settings on a client computer?",opts:["TELNET","NSLOOKUP","PATHPING","NETSTAT"],ans:1,exp:"NSLOOKUP queries DNS servers and can reveal the DNS server a client is using and resolve hostnames."},
+// ── SET 19: DHCP, VLANs & Advanced ───────────────────────────
+{n:181,t:"DHCP",q:"Which are features of DHCP? (Choose two)",opts:["IP address resolution to canonical names; secure shell connections","Address reservation; IP address exclusion","Address reservation; network file transfer","Secure shell; IP address exclusion"],ans:1,exp:"DHCP features include: (1) Address Reservation (binding a specific IP to a MAC address) and (2) IP address exclusion (preventing certain addresses from being assigned)."},
+{n:182,t:"Protocols",q:"Which protocol can encrypt packets on the Internet?",opts:["SNMP","HTTPS","TFTP","HTTP"],ans:1,exp:"HTTPS uses TLS/SSL to encrypt web traffic. SNMP manages devices; TFTP transfers files; HTTP is unencrypted."},
+{n:183,t:"OSI Model",q:"In which OSI layer does routing occur?",opts:["Transport","Network","Data Link","Physical"],ans:1,exp:"Routing occurs at Layer 3 — the Network layer. IP addresses are used for routing; MAC addresses are used at Layer 2."},
+{n:184,t:"DNS",q:"Which DNS record type specifies the host that is the authority for a domain?",opts:["NS","MX","CNAME","SOA"],ans:3,exp:"SOA (Start of Authority) record designates the primary authoritative DNS server for a zone."},
+{n:185,t:"Wireless",q:"Which wireless problem is caused by electromagnetic waves?",opts:["Fading","Attenuation","Interference","Diffraction"],ans:2,exp:"Interference is caused by electromagnetic waves from other devices operating on the same or overlapping frequencies."},
+{n:186,t:"IP Addressing",q:"CIDR notation 192.168.1.1/25 corresponds to which subnet mask?",opts:["255.255.255.64","255.255.255.1","255.255.255.32","255.255.255.128"],ans:3,exp:"/25 = 25 network bits = 255.255.255.128. This creates two subnets of 126 hosts each from a Class C network."},
+{n:187,t:"Network Types",q:"Two companies want to share data over the Internet. Which network type?",opts:["Ethernet","Intranet","Extranet","Perimeter network"],ans:2,exp:"An Extranet is a controlled private network allowing external organizations to access limited resources over the Internet."},
+{n:188,t:"Network Topologies",q:"Two advantages of star over ring topology: (Choose two)",opts:["Failure of central device OK; redundant paths","Central point allows flexibility; easy to isolate/remove devices","Data travels redundant paths; no single point of failure","Failure of central device OK; no central point needed"],ans:1,exp:"Star topology: (1) central connection point allows flexibility and scalability; (2) easy to add, remove, or isolate individual devices without affecting others."},
+{n:189,t:"WAN Technologies",q:"Which technology provides the highest bit rate?",opts:["T1","E1","DS3 (T3)","ISDN"],ans:2,exp:"DS3/T3 provides 44.736 Mbps — the highest among these options. T1=1.544 Mbps; E1=2.048 Mbps; ISDN BRI=128 Kbps."},
+{n:190,t:"Network Types",q:"A node within a LAN must have a NIC and a:",opts:["Network account","Table of all network nodes","Host address (IP address)","Resource to share"],ans:2,exp:"A LAN node requires a NIC (hardware) and an IP/host address (logical) to participate in network communication."},
+// ── SET 20: Final Challenge ───────────────────────────────────
+{n:191,t:"Network Services",q:"Which Microsoft service connects to a corporate LAN automatically without user action?",opts:["VPN","Remote Desktop","DirectAccess","NAP"],ans:2,exp:"DirectAccess establishes a bidirectional connection to the corporate network automatically whenever the device is online."},
+{n:192,t:"Routing",q:"'Dynamic routing is fault tolerant.' Is this correct?",opts:["Static routing — needs correction","Not fault tolerant — needs correction","No change needed — dynamic routing IS fault tolerant","Least cost routing"],ans:2,exp:"Dynamic routing IS fault tolerant — protocols automatically reroute around failures. No change is needed."},
+{n:193,t:"IP Addressing",q:"The default subnet mask for a Class C network is:",opts:["255.255.255.252","255.255.255.240","255.255.255.192","255.255.255.0"],ans:3,exp:"Class C = /24 = 255.255.255.0. Provides 256 addresses (254 usable hosts) per network."},
+{n:194,t:"VLANs",q:"What are three advantages of VLANs? (Choose the best answer)",opts:["They require a router between VLANs on different switches — TRUE","They compartmentalize network traffic — TRUE","Nodes act as though on the same LAN regardless of physical location — TRUE","All three above are correct"],ans:3,exp:"All three are VLAN advantages: (1) inter-VLAN routing requires a router, (2) network compartmentalization/isolation, (3) logical grouping regardless of physical location."},
+{n:195,t:"Switches",q:"Which type of index changes the order data is physically stored? (Network equivalent: which device physically segments collision domains?)",opts:["Hub — extends collision domain","Switch — each port is its own collision domain","Router — connects different networks","Bridge — connects two network segments"],ans:1,exp:"Each port on a switch creates its own collision domain, physically segmenting the network and eliminating collisions between segments."},
+{n:196,t:"DNS",q:"What type of DNS record maps hostnames to IPv4 addresses?",opts:["MX record","CNAME record","A (Host) record","PTR record"],ans:2,exp:"A records (Address records) map hostnames to IPv4 addresses. AAAA records do the same for IPv6."},
+{n:197,t:"OSI Model",q:"At which OSI layer are hardware (MAC) addresses referenced?",opts:["Network layer","Application layer","Data Link layer","Physical layer"],ans:2,exp:"MAC addresses operate at Layer 2 — the Data Link layer. The NIC uses MAC addresses for local network communication."},
+{n:198,t:"IP Addressing",q:"Which represents a valid MAC address?",opts:["GV:ZC:KK:DK:FZ:CA","255.255.255.0","05:35:AB:6E:A1:25","127.0.0.1"],ans:2,exp:"Valid MAC addresses use only hexadecimal digits (0-9, A-F) in 6 pairs. 05:35:AB:6E:A1:25 is valid. GV:ZC etc. contains invalid hex characters."},
+{n:199,t:"Network Security",q:"Which address indicates DHCP is NOT functioning?",opts:["169.254.1.15","172.16.1.15","192.168.1.15","10.19.1.15"],ans:0,exp:"169.254.x.x is APIPA — assigned automatically when DHCP fails. This is the clearest sign that the DHCP server is not responding."},
+{n:200,t:"Routing",q:"One advantage of dynamic routing is that it:",opts:["Automatically maintains routing tables","Limits traffic from routing protocols","Reduces broadcast traffic","Automatically enables DHCP"],ans:0,exp:"Dynamic routing protocols (OSPF, RIP, EIGRP) automatically update and maintain routing tables as the network topology changes."}
+];
+</script>
+<script>
+// ── THEME ──────────────────────────────────────────────────
+let darkMode = localStorage.getItem('mta_theme') !== 'light';
+function applyTheme(){
+  document.body.classList.toggle('light', !darkMode);
+  document.getElementById('themeBtn').textContent = darkMode ? '🌙' : '☀️';
+  localStorage.setItem('mta_theme', darkMode ? 'dark' : 'light');
+}
+applyTheme();
+function toggleTheme(){ darkMode = !darkMode; applyTheme(); }
+
+// ── QUESTION SHUFFLE ───────────────────────────────────────
+// Per question, shuffle options once per session and cache mapping
+// shuffleMap[qIndex] = { order: [shuffled indices], ansIdx: new answer index }
+const shuffleMap = {};
+
+function getShuffled(qIndex) {
+  if (shuffleMap[qIndex]) return shuffleMap[qIndex];
+  const q = QUESTIONS[qIndex];
+  const order = q.opts.map((_, i) => i);
+  // Fisher-Yates shuffle
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  // Find new position of correct answer
+  const ansIdx = order.indexOf(q.ans);
+  shuffleMap[qIndex] = { order, ansIdx };
+  return shuffleMap[qIndex];
+}
+
+// ── SET LABELS ─────────────────────────────────────────────
+const SET_LABELS = [
+  "Network Models & OSI","Protocols & Addressing","Network Devices",
+  "Wireless & Cabling","IP Addressing & Subnetting","Network Security & Services",
+  "TCP/IP & Routing","DNS, DHCP & Name Resolution","Commands & Troubleshooting",
+  "Wireless, VPNs & Advanced","Network Types & Protocols","DNS Records & Addressing",
+  "Subnetting & Advanced IP","Network Fundamentals Review","Protocols, Ports & Security",
+  "Commands & Troubleshooting","Mixed Review","Final Review Mix",
+  "DHCP, VLANs & Advanced","Final Challenge"
+];
+
+// ── STATE ──────────────────────────────────────────────────
+const BATCH_SIZE = 10;
+const TOTAL_BATCHES = Math.ceil(QUESTIONS.length / BATCH_SIZE);
+
+// Persist state in sessionStorage so it survives reload within same session
+let state;
+function loadState() {
+  try {
+    const saved = sessionStorage.getItem('mta_quiz_state');
+    if (saved) {
+      state = JSON.parse(saved);
+      // Re-hydrate shuffleMap
+      if (state.shuffleMap) {
+        Object.assign(shuffleMap, state.shuffleMap);
+      }
+      return;
+    }
+  } catch(e) {}
+  state = { batch:0, answers:{}, batchScores:{}, screen:'start', currentQ:0, batchAnswered:{} };
+}
+function saveState() {
+  try {
+    const toSave = {...state, shuffleMap};
+    sessionStorage.setItem('mta_quiz_state', JSON.stringify(toSave));
+  } catch(e) {}
+}
+
+loadState();
+
+// ── TAG COLORS ─────────────────────────────────────────────
+const TAG_COLORS = {
+  'OSI Model':       '#4f8eff:rgba(79,142,255,.15)',
+  'Routing':         '#fb923c:rgba(251,146,60,.15)',
+  'Network Services':'#34d399:rgba(52,211,153,.15)',
+  'Network Topologies':'#fbbf24:rgba(251,191,36,.15)',
+  'Switches':        '#38bdf8:rgba(56,189,248,.15)',
+  'Cabling':         '#c084fc:rgba(192,132,252,.15)',
+  'VLANs':           '#f472b6:rgba(244,114,182,.15)',
+  'Commands':        '#94a3b8:rgba(148,163,184,.15)',
+  'Protocols':       '#4ade80:rgba(74,222,128,.15)',
+  'IP Addressing':   '#60a5fa:rgba(96,165,250,.15)',
+  'Wireless':        '#a78bfa:rgba(167,139,250,.15)',
+  'WAN Technologies':'#fb7185:rgba(251,113,133,.15)',
+  'Network Security':'#f87171:rgba(248,113,113,.15)',
+  'DHCP':            '#2dd4bf:rgba(45,212,191,.15)',
+  'DNS':             '#38bdf8:rgba(56,189,248,.15)',
+  'VPNs':            '#818cf8:rgba(129,140,248,.15)',
+  'Network Types':   '#4ade80:rgba(74,222,128,.15)',
+  'Network Devices': '#fcd34d:rgba(252,211,77,.15)',
+  'LAN Topologies':  '#fbbf24:rgba(251,191,36,.15)',
+  'Network Protocols':'#4ade80:rgba(74,222,128,.15)',
+  'Wireless Security':'#a78bfa:rgba(167,139,250,.15)',
+  'Switches vs Hubs':'#38bdf8:rgba(56,189,248,.15)',
+};
+
+function getTagStyle(t) {
+  const v = TAG_COLORS[t] || '#94a3b8:rgba(148,163,184,.15)';
+  const [c, bg] = v.split(':');
+  return `color:${c};background:${bg};border-color:${c}40`;
+}
+
+function getBatchQs(b) { return QUESTIONS.slice(b * BATCH_SIZE, (b + 1) * BATCH_SIZE); }
+function totalCorrect() { return Object.values(state.batchScores).reduce((s, b) => s + b.score, 0); }
+function totalDone() { return Object.keys(state.batchScores).length; }
+
+// ── WRONG REASON GENERATOR ─────────────────────────────────
+function getWrongReason(q, chosenShuffledIdx) {
+  const { order } = getShuffled(QUESTIONS.indexOf(q));
+  const originalChosenIdx = order[chosenShuffledIdx];
+  const chosenText = q.opts[originalChosenIdx];
+  const correctText = q.opts[q.ans];
+
+  // Generate a specific "why you were wrong" message
+  const wrongMap = {
+    'Packet': 'A Packet is a unit of data, not a network device.',
+    'Repeater': 'A Repeater only amplifies signals at Layer 1 (Physical). It does not connect networks.',
+    'Switch': 'A Switch is a Layer 2 device — it uses MAC addresses, not IP addresses, to forward frames.',
+    'Hub': 'A Hub is a Layer 1 device that broadcasts to all ports. It cannot make routing or forwarding decisions.',
+    'Bridge': 'A Bridge operates at Layer 2 and connects two network segments, but cannot route between networks.',
+    'DHCP': 'DHCP automatically assigns IP addresses — it does not resolve hostnames or map addresses.',
+    'DNS': 'DNS resolves domain names (FQDNs) to IP addresses, not NetBIOS names. WINS handles NetBIOS.',
+    'WINS': 'WINS resolves NetBIOS names — it does not resolve FQDNs. DNS does that.',
+    'ARP': 'ARP resolves IP addresses to MAC addresses — not names to IPs.',
+    'NAT': 'NAT translates private IPs to public IPs. It doesn\'t assign addresses automatically.',
+    'Star': 'Star topology uses a central hub/switch — each device gets its own cable, so it\'s not a single cable.',
+    'Mesh': 'Mesh topology connects every device to every other — expensive and complex, not suitable for simple home setups.',
+    'Ring': 'Ring topology connects each device to two others in a loop — not a single cable design.',
+    'Bus': 'This is actually correct for single-cable, cost-effective topologies.',
+    'WEP': 'WEP is the LEAST secure wireless authentication — it\'s easily cracked using freely available tools.',
+    'WPA2': 'WPA2 is very secure, but WPA is also listed here and the question asks about the statement being correct about WEP.',
+    'IMAP': 'IMAP is an email retrieval protocol, not an address resolution protocol.',
+    'RIP': 'RIP (Routing Information Protocol) is a routing protocol, not an address resolution protocol.',
+    'UDP': 'UDP is a Transport layer protocol for sending datagrams, not for address resolution.',
+    'Cat 3': 'Cat 3 only supports up to 10 Mbps — far below the 300 Mbps requirement.',
+    'CAT5': 'CAT5 supports up to 100 Mbps — not enough for 300 Mbps.',
+    'Cat 6': 'Cat 6 meets the requirement but is more expensive than Cat 5e, which also supports up to 1 Gbps.',
+    'UTP Cat 5e': 'UTP Cat 5e supports up to 1 Gbps, but UTP has no shielding. The question involves interference, so STP is better.',
+    'UTP Cat 6': 'Cat 6 UTP also lacks shielding against interference, and is more expensive than STP Cat 5e.',
+    'Multimode fiber': 'Multimode fiber is used for shorter distances (up to ~2 km). Single mode goes tens of kilometers.',
+    'Intranet': 'An Intranet is private — only accessible internally. External partners need an Extranet.',
+    'Extranet': 'An Extranet is for sharing with external partners, not keeping data internal to an organization.',
+    'Internet': 'The Internet is the global public network, not a private organizational network.',
+    'Ethernet': 'Ethernet is a cabling/protocol standard, not a network type like Intranet or Extranet.',
+    'Firewall': 'A Firewall filters traffic — it doesn\'t separate private from public by hosting resources.',
+    'Transport': 'Transport layer (Layer 4) handles end-to-end communication. Routing is a Layer 3 function.',
+    'Data Link': 'Data Link layer (Layer 2) handles MAC addressing and framing. Routing happens at Layer 3.',
+    'Physical': 'Physical layer (Layer 1) handles raw bits and signals. Routing is a Layer 3 (Network) function.',
+    'Application': 'Application layer (Layer 7) interfaces with software. Routing is at Layer 3 (Network).',
+    'HTTPS': 'HTTPS is an application-layer protocol. The question asks about the transport layer.',
+    'FTP': 'FTP is an Application layer protocol — it runs above TCP/IP, not at the Transport layer.',
+    'HTTP': 'HTTP is an Application layer protocol, not Transport layer.',
+    'IP': 'IP is a Network layer (Layer 3) protocol — not Transport layer.',
+    'ASCII': 'ASCII is a character encoding standard, not a network protocol at any OSI layer.',
+    'Network': 'Network layer uses IP addresses for routing. MAC addresses belong to Layer 2 (Data Link).',
+    'TTL (Time to Live)': 'This is actually the correct answer — TTL controls how long DNS records are cached.',
+    'SOA': 'SOA specifies the primary DNS server for a zone, not the cache duration.',
+    'NS': 'NS records point to name servers for a domain — not cache duration.',
+    'SNMP': 'SNMP (Simple Network Management Protocol) is for monitoring devices, not encrypting traffic.',
+    'TFTP': 'TFTP (Trivial FTP) transfers files over UDP — it provides no encryption.',
+    'MX record': 'MX records map to mail servers — not for resolving hostnames to IP addresses.',
+    'CNAME record': 'CNAME creates an alias to another hostname — it doesn\'t directly map to an IP.',
+    'SRV record': 'SRV records specify service locations — not used for basic hostname-to-IP mapping.',
+    'Zone transfer': 'Zone transfer is actually the CORRECT answer here.',
+    'Zone delegation': 'Zone delegation assigns authority for a subdomain — not the same as copying zone data.',
+    '169.254.0.0 – 169.254.255.255': 'This is actually correct — APIPA uses the 169.254.0.0/16 range.',
+    '10.0.0.0 – 10.255.255.255': 'This is the Class A private range — not used by APIPA.',
+    'T1': 'T1 provides only 1.544 Mbps — much lower than DS3/T3.',
+    'E1': 'E1 provides 2.048 Mbps — lower than DS3/T3.',
+    'ISDN': 'ISDN BRI provides only 128 Kbps — far lower than DS3.',
+    'PPP (Point to Point Protocol)': 'This is actually the CORRECT answer — PPP is a Layer 2 WAN protocol.',
+    'TCP': 'TCP is a Layer 4 (Transport) protocol, not a Layer 2 WAN protocol.',
+    'Virtual port': 'Virtual ports don\'t exist as a standard switch port type for VLAN interconnection.',
+    'WAN port': 'WAN ports connect to external networks (ISP), not for inter-switch VLAN traffic.',
+    'LAN port': 'A standard LAN port handles single-VLAN traffic — it\'s an access port, not a trunk.',
+    'IPCONFIG': 'IPCONFIG shows IP configuration — it doesn\'t list active incoming connections or open ports.',
+    'NSLOOKUP': 'NSLOOKUP is for DNS queries — not for showing active TCP connections.',
+    'PING': 'PING tests connectivity to a remote host — it doesn\'t show active connections or ports.',
+  };
+
+  // Try to find a specific reason for the chosen wrong answer
+  for (const [key, reason] of Object.entries(wrongMap)) {
+    if (chosenText && chosenText.includes(key)) {
+      return reason;
+    }
+  }
+  // Generic fallback
+  return `"${chosenText || 'your answer'}" is incorrect. The key concept here: ${q.exp.split('—')[0].trim()}.`;
+}
+
+// ── RENDER ─────────────────────────────────────────────────
+function render() {
+  const app = document.getElementById('app');
+  if (state.screen === 'start') renderStart(app);
+  else if (state.screen === 'quiz') renderQuiz(app);
+  else if (state.screen === 'batch_result') renderBatchResult(app);
+  else if (state.screen === 'final') renderFinal(app);
+  saveState();
+}
+
+// ── START SCREEN ───────────────────────────────────────────
+function renderStart(app) {
+  const done = totalDone();
+  const correct = totalCorrect();
+
+  const setsHtml = Array.from({ length: TOTAL_BATCHES }, (_, i) => {
+    const bs = state.batchScores[i];
+    const startQ = i * 10 + 1;
+    const endQ = i * 10 + 10;
+    const isDone = bs !== undefined;
+    const inProgress = !isDone && i < done + 1 && i >= done;
+    let scoreHtml = '';
+    let cls = 'set-card';
+    if (isDone) {
+      cls += ' done';
+      const p = Math.round(bs.score / bs.total * 100);
+      const col = p >= 80 ? 'var(--success-text)' : p >= 60 ? 'var(--warning)' : 'var(--danger-text)';
+      scoreHtml = `<div class="set-score" style="color:${col}">${bs.score}/${bs.total} · ${p}%</div>`;
+    } else if (inProgress && done < TOTAL_BATCHES) {
+      cls += ' in-progress';
+      scoreHtml = `<div class="set-score" style="color:var(--accent)">In progress</div>`;
+    } else {
+      scoreHtml = `<div class="set-score" style="color:var(--text-3)">Not started</div>`;
+    }
+    return `<button class="${cls}" onclick="startBatch(${i})">
+      <div class="set-num">SET ${i + 1} · Q${startQ}–${endQ}</div>
+      <div class="set-title">${SET_LABELS[i]}</div>
+      ${scoreHtml}
+    </button>`;
+  }).join('');
+
+  app.innerHTML = `
+    <div class="card">
+      <div style="margin-bottom:1.25rem">
+        <div style="font-size:16px;font-weight:700;color:var(--text-1);margin-bottom:.35rem">🌐 Welcome to the MTA Network Reviewer</div>
+        <div style="font-size:13px;color:var(--text-2);line-height:1.6">200 exam-based questions · 10 per set · Shuffled answer options · Instant feedback with explanations</div>
+      </div>
+      <div class="topic-pills">
+        <span class="topic-pill">OSI Model</span><span class="topic-pill">TCP/IP</span>
+        <span class="topic-pill">Subnetting</span><span class="topic-pill">Routing</span>
+        <span class="topic-pill">DNS & DHCP</span><span class="topic-pill">Wireless 802.11</span>
+        <span class="topic-pill">Cabling</span><span class="topic-pill">VPNs & VLANs</span>
+        <span class="topic-pill">Firewalls</span><span class="topic-pill">WAN</span>
+        <span class="topic-pill">Commands</span><span class="topic-pill">Topologies</span>
+      </div>
+      ${done > 0 ? `<div style="display:flex;gap:1.5rem;margin-bottom:1.25rem;padding:12px 16px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)">
+        <div><div style="font-size:11px;color:var(--text-3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.04em">Sets Done</div><div style="font-size:20px;font-weight:700;color:var(--accent)">${done}/20</div></div>
+        <div><div style="font-size:11px;color:var(--text-3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.04em">Questions</div><div style="font-size:20px;font-weight:700;color:var(--text-1)">${correct}/${done*10}</div></div>
+        <div><div style="font-size:11px;color:var(--text-3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.04em">Accuracy</div><div style="font-size:20px;font-weight:700;color:${Math.round(correct/(done*10)*100)>=80?'var(--success-text)':Math.round(correct/(done*10)*100)>=60?'var(--warning)':'var(--danger-text)'}">${done>0?Math.round(correct/(done*10)*100)+'%':'—'}</div></div>
+      </div>` : ''}
+      <div style="font-size:12px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.75rem">Choose a Set to Start</div>
+      <div class="sets-grid">${setsHtml}</div>
+      ${done > 0 ? `<div style="margin-top:.5rem;display:flex;gap:8px;justify-content:center"><button class="btn danger-outline" onclick="confirmRestart()">🔄 Reset all progress</button></div>` : ''}
+    </div>`;
+}
+
+function confirmRestart() { restartAll(); }
+
+function confirmRetryBatch() { retryBatch(); }
+
+// ── QUIZ SCREEN ────────────────────────────────────────────
+function renderQuiz(app) {
+  const qs = getBatchQs(state.batch);
+  const qIndex = state.batch * BATCH_SIZE + state.currentQ;
+  const q = QUESTIONS[qIndex];
+  const isAnswered = state.batchAnswered[qIndex] !== undefined;
+  const chosenShuffled = state.answers[qIndex]; // index in shuffled order
+  const overall = ((qIndex) / QUESTIONS.length * 100).toFixed(0);
+  const setDone = Object.keys(state.batchAnswered).filter(k => Math.floor(k / BATCH_SIZE) === state.batch).length;
+
+  const { order, ansIdx } = getShuffled(qIndex);
+
+  let optsHtml = order.map((origIdx, si) => {
+    const optText = q.opts[origIdx];
+    const letter = String.fromCharCode(65 + si);
+    let cls = 'opt';
+    if (isAnswered) {
+      if (si === ansIdx) cls = 'opt correct';
+      else if (si === chosenShuffled && si !== ansIdx) cls = 'opt wrong';
+    }
+    return `<button class="${cls}" onclick="pickAnswer(${si})" ${isAnswered ? 'disabled' : ''}>
+      <span class="opt-letter">${letter}</span>
+      <span>${optText}</span>
+    </button>`;
+  }).join('');
+
+  let fbHtml = '';
+  if (isAnswered) {
+    const ok = chosenShuffled === ansIdx;
+    if (ok) {
+      fbHtml = `<div class="feedback correct">
+        <strong>✓ Correct!</strong>
+        ${q.exp}
+      </div>`;
+    } else {
+      const wrongReason = getWrongReason(q, chosenShuffled);
+      const chosenOrigIdx = order[chosenShuffled];
+      const chosenText = chosenShuffled !== undefined ? q.opts[chosenOrigIdx] : 'nothing';
+      const correctText = q.opts[q.ans];
+      fbHtml = `<div class="feedback wrong">
+        <strong>✗ Not quite — here's why:</strong>
+        <div class="wrong-reason">
+          <b>Why your answer was wrong:</b>
+          ${wrongReason}
+        </div>
+        <div class="wrong-reason" style="margin-top:.5rem">
+          <b>Correct answer — ${String.fromCharCode(65 + ansIdx)}. ${correctText}</b>
+          ${q.exp}
+        </div>
+      </div>`;
+    }
+  }
+
+  app.innerHTML = `
+    <div class="progress-wrap">
+      <div class="progress-row">
+        <span>Q${qIndex + 1} of 200 &nbsp;·&nbsp; Set ${state.batch + 1}: ${SET_LABELS[state.batch]}</span>
+        <span>${overall}%</span>
+      </div>
+      <div class="progress-bg"><div class="progress-fill" style="width:${overall}%"></div></div>
+    </div>
+    <div class="card">
+      <div class="batch-header">Set ${state.batch + 1} of ${TOTAL_BATCHES} &nbsp;·&nbsp; Question ${state.currentQ + 1} of ${BATCH_SIZE}</div>
+      <div class="q-num">Q${q.n}</div>
+      <span class="q-tag" style="${getTagStyle(q.t)}">${q.t}</span>
+      <div class="q-text">${q.q}</div>
+      <div id="opts">${optsHtml}</div>
+      ${fbHtml}
+      ${isAnswered && state.currentQ < qs.length - 1 ? `<div style="margin-top:1rem"><button class="btn primary" onclick="nextQ()">Next question →</button></div>` : ''}
+      ${isAnswered && state.currentQ === qs.length - 1 ? `<div style="margin-top:1rem"><button class="btn primary" onclick="showBatchResult()">View set results →</button></div>` : ''}
+    </div>
+    <div class="batch-nav">
+      <button class="btn" onclick="goHome()">← All Sets</button>
+      <span class="answered-count">${setDone}/${BATCH_SIZE} answered</span>
+      <button class="btn restart-set" onclick="confirmRetryBatch()" title="Restart this set from question 1">↺ Restart Set</button>
+    </div>`;
+}
+
+// ── BATCH RESULT SCREEN ────────────────────────────────────
+function renderBatchResult(app) {
+  const bs = state.batchScores[state.batch];
+  const qs = getBatchQs(state.batch);
+  const pct = Math.round(bs.score / bs.total * 100);
+  const isLast = state.batch === TOTAL_BATCHES - 1;
+  const ringColor = pct >= 80 ? '#4ade80' : pct >= 60 ? '#fbbf24' : '#f87171';
+  const circumference = 2 * Math.PI * 54;
+  const dashOffset = circumference * (1 - pct / 100);
+
+  let reviewHtml = qs.map((q, i) => {
+    const qIndex = state.batch * BATCH_SIZE + i;
+    const chosenShuffled = state.answers[qIndex];
+    const { order, ansIdx } = getShuffled(qIndex);
+    const ok = chosenShuffled === ansIdx;
+    const chosenOrigIdx = order[chosenShuffled];
+    const chosenText = chosenShuffled !== undefined ? q.opts[chosenOrigIdx] : '(not answered)';
+    const correctText = q.opts[q.ans];
+    const wrongReason = !ok && chosenShuffled !== undefined ? getWrongReason(q, chosenShuffled) : '';
+
+    return `<div class="review-item">
+      <div class="review-meta">Q${q.n} · ${q.t}</div>
+      <div class="review-q">${q.q}</div>
+      <div class="review-answer ${ok ? 'ok' : 'bad'}">
+        ${ok ? '✓' : '✗'} Your answer: ${chosenText}
+        ${!ok ? `<br>✓ Correct: ${correctText}` : ''}
+      </div>
+      ${!ok && wrongReason ? `<div class="review-exp" style="margin-top:.4rem;border-left-color:var(--danger-border)"><b style="font-size:11px;text-transform:uppercase;letter-spacing:.04em;opacity:.7">Why wrong:</b> ${wrongReason}</div>` : ''}
+      <div class="review-exp">${q.exp}</div>
+    </div>`;
+  }).join('');
+
+  app.innerHTML = `
+    <div class="card">
+      <div style="text-align:center;padding:1.5rem 0 1rem">
+        <div style="font-size:13px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:1rem">Set ${state.batch + 1} · ${SET_LABELS[state.batch]}</div>
+        <div class="score-ring-wrap">
+          <svg width="130" height="130" viewBox="0 0 130 130">
+            <circle cx="65" cy="65" r="54" fill="none" stroke="var(--surface3)" stroke-width="8"/>
+            <circle cx="65" cy="65" r="54" fill="none" stroke="${ringColor}" stroke-width="8"
+              stroke-dasharray="${circumference}" stroke-dashoffset="${dashOffset}"
+              stroke-linecap="round" style="transition:stroke-dashoffset .8s ease"/>
+          </svg>
+          <div class="score-inner">
+            <div class="score-big">${bs.score}/${bs.total}</div>
+            <div class="score-of">${pct}%</div>
+          </div>
+        </div>
+        <div class="score-msg">${pct >= 80 ? '🎉 Excellent!' : pct >= 60 ? '👍 Good progress' : '📖 Review & retry'}</div>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          ${!isLast ? `<button class="btn primary" onclick="startBatch(${state.batch + 1})">Next Set (${state.batch + 2}) →</button>` : `<button class="btn primary" onclick="showFinal()">Final Results →</button>`}
+          <button class="btn" onclick="retryBatch()">Retry Set</button>
+          <button class="btn" onclick="goHome()">All Sets</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-size:14px;font-weight:700;color:var(--text-1);margin-bottom:.5rem">Review — Set ${state.batch + 1}</div>
+      <div style="font-size:12px;color:var(--text-3);margin-bottom:1.25rem">Answer options below are shown in original order for review clarity.</div>
+      ${reviewHtml}
+    </div>`;
+}
+
+// ── FINAL SCREEN ───────────────────────────────────────────
+function renderFinal(app) {
+  const total = QUESTIONS.length;
+  const correct = totalCorrect();
+  const pct = Math.round(correct / total * 100);
+  const ringColor = pct >= 80 ? '#4ade80' : pct >= 60 ? '#fbbf24' : '#f87171';
+  const circumference = 2 * Math.PI * 54;
+  const dashOffset = circumference * (1 - pct / 100);
+
+  const setRows = Array.from({ length: TOTAL_BATCHES }, (_, i) => {
+    const bs = state.batchScores[i];
+    if (!bs) return `<div class="result-row"><span class="set-label">Set ${i + 1} · ${SET_LABELS[i]}</span><span style="color:var(--text-3);font-family:var(--mono)">—</span></div>`;
+    const p = Math.round(bs.score / bs.total * 100);
+    const col = p >= 80 ? 'var(--success-text)' : p >= 60 ? 'var(--warning)' : 'var(--danger-text)';
+    return `<div class="result-row">
+      <span class="set-label">Set ${i + 1} · ${SET_LABELS[i]}</span>
+      <span class="set-pct" style="color:${col}">${bs.score}/${bs.total} · ${p}%</span>
+    </div>`;
+  }).join('');
+
+  app.innerHTML = `
+    <div class="card">
+      <div style="text-align:center;padding:1.5rem 0 1rem">
+        <div style="font-size:13px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:1rem">Final Results · All 200 Questions</div>
+        <div class="score-ring-wrap">
+          <svg width="130" height="130" viewBox="0 0 130 130">
+            <circle cx="65" cy="65" r="54" fill="none" stroke="var(--surface3)" stroke-width="8"/>
+            <circle cx="65" cy="65" r="54" fill="none" stroke="${ringColor}" stroke-width="8"
+              stroke-dasharray="${circumference}" stroke-dashoffset="${dashOffset}"
+              stroke-linecap="round" style="transition:stroke-dashoffset .8s ease"/>
+          </svg>
+          <div class="score-inner">
+            <div class="score-big">${correct}/${total}</div>
+            <div class="score-of">${pct}%</div>
+          </div>
+        </div>
+        <div class="score-msg" style="font-size:17px">${pct >= 80 ? '🎉 MTA Exam Ready!' : pct >= 60 ? '👍 Good — review weak sets' : '📖 Keep studying!'}</div>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button class="btn danger-outline" onclick="confirmRestart()">🔄 Restart all 200</button>
+          <button class="btn primary" onclick="goHome()">All Sets</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-size:14px;font-weight:700;color:var(--text-1);margin-bottom:1rem">Results by Set</div>
+      ${setRows}
+    </div>`;
+}
+
+// ── ACTIONS ────────────────────────────────────────────────
+function startBatch(b) {
+  state.batch = b; state.currentQ = 0; state.screen = 'quiz';
+  render();
+}
+
+function pickAnswer(si) {
+  const qIndex = state.batch * BATCH_SIZE + state.currentQ;
+  if (state.batchAnswered[qIndex] !== undefined) return;
+  state.answers[qIndex] = si;
+  state.batchAnswered[qIndex] = true;
+  render();
+}
+
+function nextQ() { state.currentQ++; render(); }
+
+function showBatchResult() {
+  const qs = getBatchQs(state.batch);
+  let score = 0;
+  qs.forEach((q, i) => {
+    const qi = state.batch * BATCH_SIZE + i;
+    const { ansIdx } = getShuffled(qi);
+    if (state.answers[qi] === ansIdx) score++;
+  });
+  state.batchScores[state.batch] = { score, total: qs.length };
+  state.screen = 'batch_result';
+  render();
+}
+
+function retryBatch() {
+  const qs = getBatchQs(state.batch);
+  qs.forEach((_, i) => {
+    const qi = state.batch * BATCH_SIZE + i;
+    delete state.answers[qi];
+    delete state.batchAnswered[qi];
+    delete shuffleMap[qi]; // re-shuffle on retry
+  });
+  delete state.batchScores[state.batch];
+  state.currentQ = 0; state.screen = 'quiz';
+  render();
+}
+
+function showFinal() { state.screen = 'final'; render(); }
+function goHome() { state.screen = 'start'; render(); }
+function restartAll() {
+  Object.keys(shuffleMap).forEach(k => delete shuffleMap[k]);
+  state = { batch:0, answers:{}, batchScores:{}, screen:'start', currentQ:0, batchAnswered:{} };
+  sessionStorage.removeItem('mta_quiz_state');
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
